@@ -1,0 +1,28 @@
+PYTHON = python
+PYTHONPATH = ~/projects
+
+all:	compile install
+
+compile:
+	cd mxStack; \
+	if ! test -f Makefile; then $(MAKE) -f Makefile.pre.in boot; fi; \
+	$(MAKE)
+
+install:
+	cd mxStack; \
+	$(MAKE) install
+
+test:
+	cd mxStack; \
+	export PYTHONPATH=$(PYTHONPATH); \
+	$(PYTHON) test.py
+
+doc:
+	-true
+
+
+# Cleanup before distributing the package
+#
+distclean:
+	cd mxStack; \
+	$(MAKE) distclean

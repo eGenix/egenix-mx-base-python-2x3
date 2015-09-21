@@ -1,0 +1,161 @@
+Metadata-Version: 1.0
+Name: egenix-mx-base
+Version: 3.2.9
+Summary: eGenix mx Base Distribution for Python - mxDateTime, mxTextTools, mxProxy, mxTools, mxBeeBase, mxStack, mxQueue, mxURL, mxUID
+Home-page: http://www.egenix.com/products/python/mxBase/
+Author: eGenix.com Software GmbH
+Author-email: info@egenix.com
+License: eGenix.com Public License 1.1.0; Copyright (c) 1997-2000, Marc-Andre Lemburg, All Rights Reserved; Copyright (c) 2000-2015, eGenix.com Software GmbH, All Rights Reserved
+Download-URL: http://www.egenix.com/products/python/mxBase/
+Description: eGenix mx Base Distribution for Python
+        --------------------------------------
+        
+        The eGenix mx Extension Series are a collection of Python extensions
+        written in ANSI C and Python which provide a large spectrum of useful
+        additions to everyday Python programming.
+        
+        We are using the distribution on a daily basis on our own servers and
+        for client installations. Many large corporations are building their
+        Python applications on parts of the eGenix.com mx Base Distribution.
+        It is also included in popular Linux distributions, such
+        as RedHat, OpenSUSE, Debian, Ubuntu, etc.
+        
+        
+        Contents
+        --------
+        
+        The Base Distribution includes the Open Source subpackages of the
+        series and is needed by all other add-on packages of the series:
+        
+        **mxDateTime - Date/Time Library for Python**
+        
+            mxDateTime implements three new object types, DateTime,
+            DateTimeDelta and RelativeDateTime and many tools based on these
+            for doing easy conversion between and parsing of various date/time
+            formats.
+        
+            http://www.egenix.com/products/python/mxBase/mxDateTime/
+        
+        **mxTextTools - Fast Text Parsing and Processing Tools for Python**
+        
+            mxTextTools provides several useful functions and types that
+            implement high-performance text parsing, processing and search
+            algorithms.
+        
+            http://www.egenix.com/products/python/mxBase/mxTextTools/
+        
+        **mxProxy - Object Access Control for Python**
+        
+            mxProxy implements a new proxy type to provide low-level object
+            access control, weak referencing and a cleanup protocol. It's
+            ideal for use in restricted execution environments.
+        
+            http://www.egenix.com/products/python/mxBase/mxProxy/
+        
+        **mxBeeBase - On-disk B+Tree Based Database Kit for Python**
+        
+            mxBeeBase is a high performance construction kit for disk based
+            indexed databases. It offers components which you can plug
+            together to easily build your own custom mid-sized databases.
+        
+            http://www.egenix.com/products/python/mxBase/mxBeeBase/
+        
+        **mxURL - Flexible URL Data-Type for Python**
+        
+            mxURL provides a new datatype for storing and manipulating URL
+            values as well as a few helpers related to URL building, encoding
+            and decoding.
+        
+            http://www.egenix.com/products/python/mxBase/mxURL/
+        
+        **mxUID - Fast Universal Identifiers for Python**
+        
+            mxUID implements a fast mechanism for generating universal
+            identification strings (UIDs).
+        
+            http://www.egenix.com/products/python/mxBase/mxUID/
+        
+        **mxStack - Fast and Memory-Efficient Stack Type for Python**
+        
+            mxStack implements a fast and memory efficient stack object type.
+        
+            http://www.egenix.com/products/python/mxBase/mxStack/
+        
+        **mxQueue - Fast and Memory-Efficient Queue Type for Python**
+        
+            mxQueue implements a fast and memory efficient queue object type.
+        
+            http://www.egenix.com/products/python/mxBase/mxQueue/
+        
+        **mxTools - Fast Everyday Helpers for Python**
+        
+            mxTools provides a collection of handy functions and objects for
+            every day Python programming. It includes many functions that
+            you've often missed in Python.
+        
+            http://www.egenix.com/products/python/mxBase/mxTools/
+        
+        
+        Downloads
+        ---------
+        
+        For downloads, documentation, installation instructions and
+        changelogs, please visit the product page at:
+        
+            http://www.egenix.com/products/python/mxBase/
+        
+        
+        License
+        -------
+        
+        This open source software is brought to you by eGenix.com and
+        distributed under the eGenix.com Public License 1.1.0.
+        
+Platform: Windows
+Platform: Linux
+Platform: FreeBSD
+Platform: Solaris
+Platform: Mac OS X
+Platform: AIX
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Development Status :: 6 - Mature
+Classifier: Environment :: Console
+Classifier: Environment :: No Input/Output (Daemon)
+Classifier: Intended Audience :: Developers
+Classifier: License :: Freely Distributable
+Classifier: License :: OSI Approved :: Python License (CNRI Python License)
+Classifier: License :: Other/Proprietary License
+Classifier: Natural Language :: English
+Classifier: Operating System :: BeOS
+Classifier: Operating System :: MacOS
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Operating System :: OS Independent
+Classifier: Operating System :: OS/2
+Classifier: Operating System :: Other OS
+Classifier: Operating System :: POSIX
+Classifier: Operating System :: Unix
+Classifier: Programming Language :: C
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 2.4
+Classifier: Programming Language :: Python :: 2.5
+Classifier: Programming Language :: Python :: 2.6
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Topic :: Communications
+Classifier: Topic :: Database
+Classifier: Topic :: Documentation
+Classifier: Topic :: Internet
+Classifier: Topic :: Internet :: WWW/HTTP
+Classifier: Topic :: Internet :: WWW/HTTP :: Dynamic Content
+Classifier: Topic :: Internet :: WWW/HTTP :: Dynamic Content :: CGI Tools/Libraries
+Classifier: Topic :: Internet :: WWW/HTTP :: Site Management :: Link Checking
+Classifier: Topic :: Scientific/Engineering
+Classifier: Topic :: Scientific/Engineering :: Interface Engine/Protocol Translator
+Classifier: Topic :: Software Development
+Classifier: Topic :: Software Development :: Libraries
+Classifier: Topic :: Software Development :: Libraries :: Application Frameworks
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Topic :: Text Processing
+Classifier: Topic :: Text Processing :: Filters
+Classifier: Topic :: Text Processing :: Markup
+Classifier: Topic :: Utilities 

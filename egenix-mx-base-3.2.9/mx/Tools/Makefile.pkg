@@ -1,0 +1,29 @@
+PYTHON = python
+PYTHONPATH = ~/projects
+
+all:	compile install
+
+compile:
+	cd mxTools; \
+	if ! test -f Makefile; then $(MAKE) -f Makefile.pre.in boot; fi; \
+	$(MAKE)
+
+install:
+#	cd mxTools; \
+#	$(MAKE) install
+	echo " Nothing to be done."
+
+test:
+	cd mxTools; \
+	export PYTHONPATH=$(PYTHONPATH); \
+	$(PYTHON) test.py
+
+doc:
+	-true
+
+
+# Cleanup before distributing the package
+#
+distclean:
+	cd mxTools; \
+	$(MAKE) distclean

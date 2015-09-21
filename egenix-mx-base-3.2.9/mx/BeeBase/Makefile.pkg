@@ -1,0 +1,40 @@
+PYTHON = python
+PYTHONPATH = ~/projects
+
+all:	compile install
+
+# Compile target. This should setup the package and compile it
+# into a state ready for installation.
+
+compile:
+	cd mxBeeBase; \
+	if ! test -f Makefile; then $(MAKE) -f Makefile.pre.in boot; fi;\
+	$(MAKE)
+
+# Install target. This should do the install step. If the package
+# needs no further installation step (i.e. the extension is not
+# needed by other extension modules), then you can leave this target
+# blank.
+
+install:
+	# ???
+
+# Test target. Should do some testing of the extension. Writing
+# something like 'ok' or 'works' and the end of a successful run.
+
+test:
+	cd mxBeeBase; \
+	export PYTHONPATH=$(PYTHONPATH); \
+	$(PYTHON) test.py
+
+# Documentation target. Use this to have the documentation for
+# an extension generated at the user.
+
+doc:
+	# ???
+
+# Cleanup before distributing the package
+#
+distclean:
+	cd mxBeeBase; \
+	$(MAKE) distclean

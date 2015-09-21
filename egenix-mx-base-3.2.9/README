@@ -1,0 +1,66 @@
+=============================================================================
+eGenix mx Base Distribution for Python
+-----------------------------------------------------------------------------
+
+Source Installation
+-------------------
+
+In order to build and install the source distribution, run 
+
+    python setup.py install
+
+Then change to some other directory and try to import the packages:
+
+$ cd ~
+$ python
+Python 2.5.4 (r254:67916, Jan  9 2009, 21:28:52)
+[GCC 4.2.1 (SUSE Linux)] on linux2
+Type "help", "copyright", "credits" or "license" for more information.
+>>> from mx.DateTime import now
+>>> print now()
+2009-02-26 11:00:03.24
+>>>                            
+
+Note that trying this from the installation directory will cause
+Python to pick up the source tree packages which do not contain the
+compiled binaries.  This will likely fail with strange error messages.
+
+
+Prebuilt Installation
+---------------------
+
+If you have downloaded a prebuilt distribution archive, the
+installation is basically the same as for the source installation,
+only that setup.py will automatically skip the build process.
+
+In order to build and install the prebuilt distribution, run 
+
+    python setup.py install
+
+and then test the setup as explained for the source installation.
+
+
+Copyrights & Licenses
+---------------------
+
+The software in this distribution is copyrighted and protected by
+international, EU and German copyright law. Please see the COPYRIGHT
+file for details.
+
+The software is licensed to you under the eGenix.com Public License as
+stated in the LICENSE file of the distribution directory.  Some
+subpackages may contain third-party software which is licensed under
+different conditions. Please see the documentation and/or LICENSE
+files of the subpackages for details.
+
+If in doubt, please check the web-site at http://www.egenix.com or
+contact sales@egenix.com for more information on copyright, licensing
+conditions and authorized use.
+
+
+-----------------------------------------------------------------------------
+eGenix.com GmbH
+Pastor-Loeh-Str. 48
+D-40764 Langenfeld
+Germany
+info@egenix.com

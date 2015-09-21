@@ -1,0 +1,16 @@
+# Build extensions shared:
+*shared*
+#
+
+#
+# mxURL module
+#
+mxURL \
+#
+# Enable to have 'python -d' produce a logfile mxURL.log with
+# debugging information in the current working dir.
+#
+#	-DMAL_DEBUG \
+#	-DMAL_REF_DEBUG \
+#
+	mxURL.c

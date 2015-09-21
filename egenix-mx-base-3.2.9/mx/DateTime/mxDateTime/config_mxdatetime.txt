@@ -1,0 +1,45 @@
+!++
+! CONFIG_MXDATETIME.TXT - 30-MAY-2000 - Jean-François Piéronne
+!
+! configuration information
+! - add/remove module 'mxDateTime'
+!
+! -- to register:
+! $ @ PYTHON_VMS:SETUP
+! $ python PYTHON_TOOLS:REGISTER_CONFIG.PY  R  CONFIG_MXDATETIME.TXT
+!
+! -- to unregister:
+! $ @ PYTHON_VMS:SETUP
+! $ python PYTHON_TOOLS:REGISTER_CONFIG.PY  U  CONFIG_MXDATETIME.TXT
+!
+! remember to re-run the following procedures after (de)registration:
+!       $ @ PYTHON_TOOLS:CVT_CONFIG_MODULES.COM
+!       $ @ PYTHON_TOOLS:CVT_CONFIG_OLB.COM
+!       $ @ PYTHON_VMS:CONFIG_INITTAB2MAR.COM  "CONFIG.DAT"  "D"
+!       $ @ PYTHON_VMS:BLDRUN VMS_MACRO CONFIG_INITTAB
+!       $ @ PYTHON_VMS:LINK_PY
+!
+!--
+!
+$FORMAT_VERSION=1
+!
+$COMPONENT=PYTHON.MXDATETIME
+!
+$CONFIG
+mxDateTime       initmxDateTime        D
+$ENDCONFIG
+!
+!
+$OLB
+! module 'mxDateTime' goes into [.O_arch]MODULES_*.OLB together with the base software
+$ENDOLB
+!
+!
+$MODULES
+!OLB|module                             |o|d|t|e=c|alpha|vax  |procedure             ||
+ MODULES|MXDATETIME                     |1|C|-|D=D|05520|05520|||
+! ----------------------------------------------------------------------------
+$ENDMODULES
+!
+!
+! EOF: CONFIG_MXDATETIME.TXT

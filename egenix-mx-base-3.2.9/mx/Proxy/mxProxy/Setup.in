@@ -1,0 +1,14 @@
+# Build extensions shared:
+*shared*
+#
+
+#
+# mxProxy module
+#
+mxProxy \
+#
+#	Uncomment this line to enable the debugging hooks in mxProxy.
+#	-DMAL_DEBUG \
+#
+#	Always leave this line uncommented:
+	mxProxy.c

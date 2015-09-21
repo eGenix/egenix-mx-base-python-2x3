@@ -1,0 +1,491 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+<HEAD>
+   <TITLE>Stack - A Stack Implementation for Python</TITLE>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+    <STYLE TYPE="text/css">
+      p { text-align: justify; }
+      ul.indent { }
+      body { }
+    </STYLE>
+</HEAD>
+
+  <BODY TEXT="#000000" BGCOLOR="#FFFFFF" LINK="#0000EE" VLINK="#551A8B" ALINK="#FF0000">
+
+    <HR NOSHADE WIDTH="100%">
+    <H2>mxStack - A Stack Implementation for Python</H2>
+
+    <HR SIZE=1 NOSHADE WIDTH="100%">
+    <TABLE WIDTH="100%">
+      <TR>
+	<TD>
+	  <SMALL>
+	    <A HREF="#Interface">Interface</A> :
+	    <A HREF="#Constants">Constants</A> :
+	    <A HREF="#Examples">Examples</A> :
+	    <A HREF="#API">C API</A> :
+	    <A HREF="#Structure">Structure</A> :
+	    <A HREF="#Support">Support</A> :
+	    <A HREF="http://www.egenix.com/files/python/eGenix-mx-Extensions.html#Download-mxBASE"><B>Download</B></A> :
+	    <A HREF="#Copyright">Copyright &amp; License</A> :
+	    <A HREF="#History">History</A> :
+	    <A HREF="" TARGET="_top">Home</A>
+	</SMALL>
+	</TD>
+	<TD ALIGN=RIGHT VALIGN=TOP>
+	  <SMALL>
+	    <FONT COLOR="#FF0000">Version 2.1.0</FONT>
+	  </SMALL>
+	</TD>
+    </TABLE>
+    <HR SIZE=1 NOSHADE WIDTH="100%">
+
+    <H3>Introduction</H3>
+
+    <UL CLASS="indent">
+
+	<P>
+	  Though stacks can be emulated with Python lists, this type
+	  provides a simple interface to the data structure, both in
+	  Python and in C. Because of the function call overhead
+	  calling the methods from Python it is only a tad faster than
+	  a corresponding list emulation.  Called from within an C
+	  extension shows a more significant performance increase. The
+	  included <TT>stackbench.py</TT> gives an impression of how
+	  the different methods relate w/r to speed:
+
+	<PRE>
+mx/Stack> python stackbench.py 1000 100 10
+list:  0.24
+tuples: 0.15
+Stack (with push + pop): 0.17
+Stack (with push + pop_many): 0.17
+Stack (with &lt;&lt; + &gt;&gt;): 0.19
+Stack (with push_many + pop_many): 0.17
+UserStack: 0.33
+	</PRE>
+
+	<P>
+	  Note that the tuple version has a few disadvantages when
+	  used for big stacks: for one it uses lots of memory (20
+	  bytes per entry slot; Stack uses 20 bytes + 4 bytes per
+	  entry slot) and deallocation can become a problem -- this is
+	  done using recursion with one level per stack element. For
+	  small stacks it still is unbeatable, though (it has no
+	  function call overhead). BTW, the UserStack implementation
+	  uses the same technique: the figures shown mainly result
+	  from Python method call overhead.
+
+	<P>
+	  Because stacks are normally used only temporarily, the Stack
+	  implementation only grows the memory buffer used for holding
+	  the entry slots. It never shrinks it. This has an advantage
+	  of reducing malloc overhead when doing e.g. depth first
+	  search, but also the disadvantage of using more memory in
+	  degenerate cases. To compensate for this, simply call the
+	  .resize() method every now and then. It forces the used
+	  buffer to be resized.
+
+	<P>
+
+    </UL><!--CLASS="indent"-->
+
+    <A NAME="Interface">
+
+    <H3>Interface</H3>
+
+    <UL CLASS="indent">
+
+	<P>
+	  The mxStack package defines the following interfaces.
+
+	<H4>Stack Constructors</H4>
+
+	<UL CLASS="indent">
+
+	    <P>There are two ways to construct a <TT>Stack</TT> from scratch:
+
+	    <P><DL>
+
+	      <DT><CODE><FONT COLOR="#000099">
+
+		    Stack([initial_size])
+
+		  </FONT></CODE></DT>
+
+	      <DD>Returns a new empty Stack instance allocating at least
+		the given number of slots for stack elements. If the
+		parameter is not given a reasonable default is
+		chosen.</DD><P>
+
+	      <DT><CODE><FONT COLOR="#000099">
+
+		    StackFromSequence(seq)
+
+		  </FONT></CODE></DT>
+
+	      <DD>Constructs a Stack instance from the given sequence. The
+		instance is filled with all the elements found in the
+		sequence by pushing the items from index 0 to len(seq)-1 in
+		that order, i.e. popping all elements from the Stack results
+		in a reversed sequence. </DD><P>
+
+	    </DL>
+
+	</UL><!--CLASS="indent"-->
+
+	<H4>Stack Instance Methods</H4>
+
+	<UL CLASS="indent">
+
+	    <P>A <TT>Stack</TT> instance has the following methods:
+
+	    <P><DL>
+
+	      <DT><CODE><FONT COLOR="#000099">
+		    push(x)</FONT></CODE></DT>
+
+	      <DD>
+		Pushes the object x onto the stack.</DD><P>
+
+	      <DT><CODE><FONT COLOR="#000099">
+		    push_many(sequences)</FONT></CODE></DT>
+
+	      <DD>
+		Pushes the objects in <CODE>sequence</CODE> from left to
+		right onto the stack. If errors occur during this process,
+		the already pushed elements are discarded from the stack
+		and it returns to its original state.</CODE></DD><P>
+
+	      <DT><CODE><FONT COLOR="#000099">
+		    pop()</FONT></CODE></DT>
+
+	      <DD>
+		Pops the top element off of the stack.</DD><P>
+
+	      <DT><CODE><FONT COLOR="#000099">
+		    pop_many(n)</FONT></CODE></DT>
+
+	      <DD>
+		Pops the top <CODE>n</CODE> elements and returns them in
+		form of a tuple. If less than <CODE>n</CODE> elements are
+		on the stack, the tuple will contain all stack entries and
+		the stack will then be empty again. The order is top to
+		bottom, i.e. <CODE>s.pop_many(2) ==
+		  (s.pop(),s.pop())</CODE></DD><P>
+
+	      <DT><CODE><FONT COLOR="#000099">
+		    as_tuple()</FONT></CODE></DT>
+
+	      <DD>
+		Returns the stack's content as tuple, without modifying
+		it.</DD><P>
+
+	      <DT><CODE><FONT COLOR="#000099">
+		    as_list()</FONT></CODE></DT>
+
+	      <DD>
+		Returns the stack's content as list, without modifying
+		it.</DD><P>
+
+	      <DT><CODE><FONT COLOR="#000099">
+		    clear()</FONT></CODE></DT>
+
+	      <DD>
+		Clears the stack.</DD><P>
+
+	      <DT><CODE><FONT COLOR="#000099">
+		    resize([size=len(stack)])</FONT></CODE></DT>
+
+	      <DD>
+		Resize the stack buffer to hold at least <CODE>size</CODE>
+		entries.
+		<P>
+		  You can call this method without argument to force the
+		  stack to shrink its memory buffer to the minimal limit
+		  needed to hold the contained elements. </DD><P>
+
+	      <DT><CODE><FONT COLOR="#000099">
+		    __getitem__(index)</FONT></CODE></DT>
+
+	      <DD>
+		This is not really a method, but a slot providing access
+		to the items on the Stack without popping them off the
+		Stack.
+		<P>
+		  <CODE>index</CODE> works just like for Python lists,
+		  i.e. negative indices are normalized using the current
+		  length of the Stack.
+		<P>
+		  An <CODE>IndexError</CODE> is raised for invalid
+		  indices. This makes the Stack compatible to the
+		  <CODE>for</CODE>-loop statement allowing you to iterate
+		  over the Stack contents from bottom to top.
+	      </DD><P>
+
+	    </DL>
+
+	    <P>Note that no method for testing emtpyness is provided. Use
+	      len() for that or simply test for trueness, e.g. <CODE>while
+		s: print s.pop()</CODE> will loop as long as there are
+	      elements left on the Stack s. This is much faster than going
+	      through the method calling process -- even when the method
+	      being called is written in C.
+
+	    <P>
+
+	</UL><!--CLASS="indent"-->
+
+	<A NAME="Constants">
+
+	<H4>Constants</H4>
+
+	<UL CLASS="indent">
+
+	    <P>
+	      <DL>
+
+	      <DT><CODE><FONT COLOR="#000099">
+		    Error</FONT></CODE></DT>
+
+	      <DD>
+		Error class used for package specific errors. It is a
+		subclass of exceptions.IndexError.</DD><P>
+
+	      <DT><CODE><FONT COLOR="#000099">
+		    EmptyError</FONT></CODE></DT>
+
+	      <DD>
+		Error class used to signal an empty queue. It is a
+		subclass of Error.</DD><P>
+
+	    </DL>
+
+	    <P>
+
+	</UL><!--CLASS="indent"-->
+
+    </UL><!--CLASS="indent"-->
+
+    <A NAME="Examples">
+
+    <H3>Examples of Use</H3>
+
+    <UL CLASS="indent">
+
+	<P>Well, there's not much to show:
+
+	<FONT COLOR="#000099"><PRE>
+from mx.Stack import *
+s = Stack()
+for i in range(1000):
+    s.push(i)
+while s:
+    print s.pop()
+# which could also be done as:
+s = StackFromSequence(range(1000))
+while s:
+    print s.pop()
+# or a little different
+s = StackFromSequence(range(1000))
+print s.as_tuple()
+print s.as_list()
+	</PRE></FONT>
+
+    </UL><!--CLASS="indent"-->
+
+    <A NAME="API">
+
+    <H3>Supported Data Types in the C-API</H3>
+
+    <UL CLASS="indent">
+
+	<P>Please have look at the file <TT>mxStack.h</TT> for
+	details.  Basically all of the above Python interfaces are
+	also available in the C API.
+
+	<P>To access the module, do the following (note the
+	similarities with Python's way of accessing functions from a
+	module):
+
+	<PRE>
+#include "mxStack.h"
+
+...
+    PyObject *v;
+
+    /* Import the mxStack module */
+    if (mxStack_ImportModuleAndAPI())
+	goto onError;
+
+    /* Access functions from the exported C API through mxStack */
+    v = mxStack.Stack(0);
+    if (!v)
+	goto onError;
+
+    /* Type checking */
+    if (mxStack_Check(v))
+        printf("Works.\n");
+
+    Py_DECREF(v);
+...
+	</PRE>
+	<P>
+
+    </UL><!--CLASS="indent"-->
+
+    <A NAME="Structure">
+
+    <H3>Package Structure</H3>
+
+    <UL CLASS="indent">
+
+	<PRE>
+[Stack]
+	mxStack
+	</PRE>
+
+	<P>Entries enclosed in brackets are packages (i.e. they are
+	directories that include a <TT>__init__.py</TT> file). Ones
+	without brackets are just simple subdirectories that are not
+	accessible via <CODE>import</CODE>. These are used for
+	compiling the C extension modules which will get installed in
+	the same place where all your other site specific extensions
+	live (e.g. <TT>/usr/local/lib/python-x.xx/site-packages</TT>).
+
+	<P>The package Stack imports all symbols from the extension
+	mxStack, so <CODE>import Stack; s = Stack.Stack()</CODE> gives
+	you a Stack instance in <CODE>s</CODE>.
+
+	<P>
+
+    </UL><!--CLASS="indent"-->
+
+    <A NAME="Support">
+
+    <H3>Support</H3>
+
+    <UL CLASS="indent">
+
+	<P>
+	  eGenix.com is providing commercial support for this
+	  package. If you are interested in receiving information
+	  about this service please see the <A
+	  HREF="http://www.egenix.com/files/python/eGenix-mx-Extensions.html#Support">eGenix.com
+	  Support Conditions</A>.
+
+    </UL><!--CLASS="indent"-->
+
+    <A NAME="Copyright">
+
+    <H3>Copyright &amp; License</H3>
+
+    <UL CLASS="indent">
+
+	<P>
+	  &copy; 1998-2000, Copyright by Marc-Andr&eacute; Lemburg;
+	  All Rights Reserved.  mailto: <A
+	  HREF="mailto:mal@lemburg.com">mal@lemburg.com</A>
+	<P>
+	  &copy; 2000-2004,  Copyright by eGenix.com Software GmbH,
+	  Langenfeld, Germany; All Rights Reserved.  mailto: <A
+	  HREF="mailto:info@egenix.com">info@egenix.com</A>
+
+	<P>
+	  This software is covered by the <A
+	  HREF="mxLicense.html#Public"><B>eGenix.com Public
+	  License Agreement</B></A>. The text of the license is also
+	  included as file "LICENSE" in the package's main directory.
+
+	<P>
+	  <B> By downloading, copying, installing or otherwise using
+	  the software, you agree to be bound by the terms and
+	  conditions of the eGenix.com Public License
+	  Agreement. </B>
+
+    </UL><!--CLASS="indent"-->
+
+    <A NAME="History">
+
+    <H3>History & Future</H3>
+
+    <UL CLASS="indent">
+
+	<P>Changes from version 2.0.3 to 2.1.0:
+
+	<UL>
+
+	  <LI> Documented the exception objects used by the package.
+	  Added EmptyError exception.
+	    
+	</UL>
+
+        <P>There were no significant changes between 2.0.2 and 2.0.3.
+
+	<P>Changes from 2.0.0 to 2.0.2:
+
+	<UL>
+
+	    <LI> Fixed a bug in the coercion code which surfaced
+	    due to the rich comparison changes in Python 2.1. Python
+	    2.1 will now compare Stack objects to other objects
+	    without raising a TypeError.
+
+	</UL>
+
+	<P>Changes from <A HREF="mxStack-0.2.zip">0.2.2</A> to 2.0.0:
+
+	<UL>
+
+	  <LI>Added .pop_many(), .resize() and .clear().
+	    
+	    <P><LI>Added mxStack_PopMany, mxStack_PushMany,
+	    mxStack_Clear, mxStack_Length to the C API.
+	    
+	    <P><LI>Fixed a memory leak in StackFromSequence().
+
+	    <P><LI>Fixed in bug in the non-zero testing code.
+
+	    <P><LI>Added __getitem__ slot and mxStack_GetItem C API.
+	    After an idea by Adam Deprince.
+
+	    <P><LI> <B>Moved</B> the package under a new top-level
+	    package 'mx'. It is part of the <I>eGenix.com mx BASE
+	    distribution</I>.
+
+	</UL>
+
+	<P>Changes from <A HREF="mxStack-0.1.zip">0.1</A> to 0.2.2:
+
+	<UL>
+
+	  <LI>Version 0.2.2: Fixed a bug that caused stack.push()
+	  to dump core when called without argument. Also added some
+	  minor speedups.
+
+	    <P><LI>Version 0.2.1: added method pop_many().
+
+	    <P><LI>Converted the module into a package called
+	    'Stack'. This imports the C extension mxStack.
+
+	</UL>
+
+	<P>
+
+    </UL><!--CLASS="indent"-->
+
+    <HR WIDTH="100%">
+    <CENTER><FONT SIZE=-1>
+        <P>
+          &copy; 1998-2000, Copyright by Marc-Andr&eacute; Lemburg;
+          All Rights Reserved.  mailto: <A
+          HREF="mailto:mal@lemburg.com">mal@lemburg.com</A>
+        <P>
+          &copy; 2000-2004,  Copyright by eGenix.com Software GmbH; 
+          All Rights Reserved.  mailto: <A
+          HREF="mailto:info@egenix.com">info@egenix.com</A>
+    </FONT></CENTER>
+    </FONT></CENTER>
+
+  </BODY>
+</HTML>

@@ -1,0 +1,18 @@
+# Build extensions shared:
+*shared*
+#
+
+# Text processing tools
+mxTextTools \
+#
+# Compile all parts of the tools for mxTextTools
+	-DMX_BUILDING_MXTEXTTOOLS \
+#
+# To enable debugging support uncomment the next line (will print information
+# to various .log files if Python is run with -d option):
+#	-DMAL_DEBUG_WITH_PYTHON \
+#
+# To enable the Fast Search Algorithm, also add the next line:
+#	-DMXFASTSEARCH  private/mxfse.c \
+# Always leave this line uncommented:
+	mxTextTools.c mxte.c mxbmse.c

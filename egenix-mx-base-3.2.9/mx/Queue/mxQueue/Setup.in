@@ -1,0 +1,8 @@
+# Build extensions shared:
+*shared*
+#
+
+#
+# mxQueue module
+#
+mxQueue mxQueue.c

@@ -1,0 +1,16 @@
+# Build extensions shared:
+*shared*
+#
+
+#
+# mxUID module
+#
+mxUID \
+#
+# Enable to have 'python -d' produce a logfile mxUID.log with
+# debugging information in the current working dir.
+#
+#	-DMAL_DEBUG \
+#	-DMAL_REF_DEBUG \
+#
+	mxUID.c

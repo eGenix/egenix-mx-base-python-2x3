@@ -1,0 +1,19 @@
+# Build extensions shared:
+*shared*
+#
+
+#
+# mxBeeBase module
+#
+mxBeeBase \
+#
+#	Enable the next lines to have debugging code compiled in.
+#	-DMAL_DEBUG \
+#	-DMAL_DEBUG_WITH_PYTHON \
+#
+#	Enable this line to have the BTree implementation report
+#	lots of useful low-level extra debugging information.
+#	-DBTREE_DEBUG \
+#
+#	Always leave the next line enabled
+	mxBeeBase.c btr.c

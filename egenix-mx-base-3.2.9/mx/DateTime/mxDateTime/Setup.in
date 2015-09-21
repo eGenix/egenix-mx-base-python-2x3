@@ -1,0 +1,41 @@
+# Build extensions shared:
+*shared*
+#
+
+#
+# mxDateTime module
+#
+mxDateTime \
+#
+# NOTE: These defines are only necessary in case Python hasn't checked
+#       for the specific C lib APIs during the ./configure step. All of them
+#       are checked on Unix starting with Python 1.5.2. On other patforms
+#       you may have to uncomment these by hand:
+#
+# Uncomment this line if you have the strftime() C lib API on your platform
+#	-DHAVE_STRFTIME \
+#
+# Uncomment this line if you have the strptime() C lib API on your platform
+#	-DHAVE_STRPTIME \
+#
+# Uncomment this line if you have the timegm() C lib API on your platform
+#	-DHAVE_TIMEGM \
+#
+# mxDateTime can use its own API for querying the current time from
+# the OS, or reuse the Python time.time() function. The latter is more
+# portable, but slower. Define the following symbol to use the faster
+# native API.
+#
+#	-DUSE_FAST_GETCURRENTTIME \
+#
+# mxDateTime can use real time APIs if the system provides them.
+#
+#        -DHAVE_CLOCK_GETTIME -lrt \
+#
+# mxDateTime has experimental support for subclassable types which
+# were introduced in Python 2.2a1. Enable the following symbol to
+# make the DateTimeType subclassable.
+#
+#	-DWANT_SUBCLASSABLE_TYPES \
+#
+	mxDateTime.c
