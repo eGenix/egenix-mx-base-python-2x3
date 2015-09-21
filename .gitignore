@@ -1,0 +1,7 @@
+.svn
+private
+*.pyc
+*.pyo
+__pycache__
+*~
+*.bak
