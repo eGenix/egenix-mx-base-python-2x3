@@ -31,6 +31,48 @@ extern "C" {
 
 /*
   ----------------------------------------------------------------
+  Python 3.0
+  ----------------------------------------------------------------
+*/
+
+#if PY_VERSION_HEX >= 0x03000000
+
+/* XXX TODO: Check need for mapings*/
+#define PyInt_AsLong                PyLong_AsLong
+#define PyInt_Check                 PyLong_Check
+#define PyInt_FromLong              PyLong_FromLong
+#define PyInt_AS_LONG               PyLong_AS_LONG
+#define PyInt_FromSsize_t           PyLong_FromSsize_t
+
+#undef PyUnicode_AsString
+#undef PyUnicode_AS_STRING
+#undef PyUnicode_Check
+#undef PyUnicode_FromStringAndSize
+#undef PyUnicode_FromString
+#undef PyUnicode_FromFormat
+#undef PyUnicode_DecodeFSDefault
+
+#define PyUnicode_AsString          PyString_AsString
+#define PyUnicode_AS_STRING         PyString_AS_STRING
+#define PyUnicode_Check             PyString_Check
+#define PyUnicode_FromStringAndSize PyString_FromStringAndSize
+#define PyUnicode_FromString        PyString_FromString
+#define PyUnicode_FromFormat        PyString_FromFormat
+#define PyUnicode_DecodeFSDefault   PyString_FromString
+
+#define PyBytesObject               PyStringObject
+#define PyBytes_AsString            PyString_AsString
+#define PyBytes_AS_STRING           PyString_AS_STRING
+#define PyBytes_Check               PyString_Check
+#define PyBytes_AsStringAndSize     PyString_AsStringAndSize
+#define PyBytes_FromStringAndSize   PyString_FromStringAndSize
+#define PyBytes_FromString          PyString_FromString
+#define _PyBytes_Resize             _PyString_Resize
+
+#endif
+
+/*
+  ----------------------------------------------------------------
   Python 2.7.4
   ----------------------------------------------------------------
 */
