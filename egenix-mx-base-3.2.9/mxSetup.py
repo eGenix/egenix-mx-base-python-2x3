@@ -133,13 +133,13 @@ if '.pyo' not in PY_SUFFIXES:
 SETUPTOOLS_NAMESPACE_INIT = """\
 __import__('pkg_resources').declare_namespace(__name__)
 """
-    
+
 ### Python compatibility support
 
 try:
     import cPickle as pickle
 except ImportError:
-    import pickle 
+    import pickle
 
 try:
     import urllib2
@@ -178,7 +178,7 @@ class NotSupportedError(TypeError):
 # distutils.util.change_root() has a bug on nt and os2: it fails with
 # an IndexError in case pathname is empty. We fix this by
 # monkey-patching distutils.
-        
+
 import distutils.util
 
 orig_change_root = distutils.util.change_root
@@ -735,12 +735,12 @@ def canonical_os_name(sys_platform=None):
         just means that the binaries compiled for previous OS versions
         on the same processor architecture can be loaded by the newer
         OS version.
-        
+
     """
     if sys_platform is None:
         sys_platform = sys.platform
     platform = sys_platform.strip().lower()
-    
+
     # Linux
     if platform.startswith('linux'):
         # Linux versions are binary compatible. See TBD.
@@ -931,13 +931,13 @@ def canonical_platform_name(platform=None, return_re=False):
         m = re.match('(hp-ux)-(.+)-%s$' % processor_re, platform)
         name, version, processor = m.groups()
         return '%s-%s' % (name, processor)
-    
+
     # Cygwin (Unix for Windows)
     elif platform.startswith('cygwin'):
         m = re.match('(cygwin)-(.+)-%s$' % processor_re, platform)
         name, version, processor = m.groups()
         return '%s-%s' % (name, processor)
-    
+
     # Try the generic format; assume they don't use hyphens in the OS
     # name
     m = re.match('([^-]+)-(.+)-%s$' % processor_re, platform)
@@ -978,7 +978,7 @@ def compatible_platform(ref_platform, this_platform=None):
         return False
 
 def _test_compatible_platform():
-    
+
     for platform in (
         'linux-i686',
         'linux-x86_64',
@@ -1040,7 +1040,7 @@ def get_env_var(name, default=None, integer_value=0, yesno_value=0):
             return 1
         else:
             return 0
-        
+
     # Return the string value
     return value
 
@@ -1403,7 +1403,7 @@ def mx_make_tarball(base_name, base_dir, compression='gzip', verbose=0,
         cmd = [compression, options, tar_archive]
         spawn(cmd, verbose=verbose, dry_run=dry_run)
         tar_archive = tar_archive + ext
-        
+
     return tar_archive
 
 # Register our version of make_tarball()
@@ -1536,7 +1536,7 @@ def get_msvc_paths():
 #
 # Search paths
 #
-        
+
 # Standard system directories which are automatically scanned by the
 # compiler and linker for include files and libraries. LIB and INCLUDE
 # are environment variables used on Windows platforms, other platforms
@@ -1606,7 +1606,7 @@ if sys.platform == 'darwin':
     # dylib, other compiler classes will simply exist with an
     # AttributeError
     LIB_TYPES = ('dylib', 'shared', 'static')
-    
+
 else:
     # These types are supported by all compiler classes
     LIB_TYPES = ('shared', 'static')
@@ -1738,9 +1738,9 @@ def hashed_download_url(download_url, mode='simple', data=None, download=None):
 
         mode determines how the fragment is formatted. Possible
         values:
-        
+
         * 'simple': add #md5=...
-        
+
           This is compatible with setuptools/easy_install/pip.
 
         * 'pip': add #sha256=...
@@ -2050,7 +2050,7 @@ def _test_download_url():
         unzip_file(target, 'test-zip-file/')
         unzip_file(target, 'test-stripped-zip-file/', strip_path=1)
 
-if 0:    
+if 0:
     # Tests
     _test_hashed_download_url()
     #_test_download_url()
@@ -2085,7 +2085,7 @@ def write_package_data(datafile, data, base_url=None, replace=False,
         For each data entry url: tags, url has to be a URL or filename
         which refers to the package file and tags has to be a set or
         list of string tags associated with the package.
-        
+
         base_url may be given to set a base URL. base_url_mode defines
         how the base_url is combined with the URLs in the data
         dictionary.  Default is to 'join' the the base_url with these
@@ -2103,7 +2103,7 @@ def write_package_data(datafile, data, base_url=None, replace=False,
         add hash tags to the urls. hash_tag_mode defines the hash tag
         mode to use for this. Note that failing downloads will result
         in DistutilsError to be raised.
-        
+
     """
     if os.path.exists(datafile) and not replace:
         package_data = read_package_data(datafile)
@@ -2238,7 +2238,7 @@ def _find_source_package(package_data):
     """ Find a suitable source package and return its URL.
 
         Raises a KeyError if no package can be found.
-    
+
     """
     source_packages = _filter_packages(package_data, 'source')
     if _debug:
@@ -2346,7 +2346,7 @@ def cpuinfo_hardware(default=None):
         Note: The Hardware field only appears to be available on ARM
         or other SoC systems. Perhaps it's even an addition only
         available on Raspbian, the Raspi Linux OS.
-    
+
     """
     cpuinfo = parse_cpuinfo(default)
     if cpuinfo is default:
@@ -2422,7 +2422,7 @@ Serial          : 00000000c8cc66df
     def machine():
         return 'armv6l'
     platform.machine = machine
-    
+
     assert raspi_version() == 1
 
     # Mock Raspi2
@@ -2487,7 +2487,7 @@ if 0:
     _test_raspi_version()
 
 ## Platform tags support
-    
+
 def platform_tags():
 
     """ Determine the platform parameters of the currently running
@@ -2502,7 +2502,7 @@ def platform_tags():
         matters and left set to '' otherwise.  alt_code_types is a
         tuple of additional code types supported by packages compiled
         on this system, e.g. if the system supports fat builds.
-        
+
     """
     # Determine bitsize used by Python (not necessarily the same as
     # the one used by the platform)
@@ -2557,7 +2557,7 @@ def platform_tags():
             code_type = 'x86'
         elif bits == 64:
             code_type = 'x64'
-           
+
     elif sys.platform.startswith('darwin'):
         os_name = 'macosx'
         if machine.startswith('Power'):
@@ -2663,7 +2663,7 @@ def find_matching_package(package_data, required_tags=()):
         if _debug > 1:
             print ('filtered by required tags (%s): %r' %
                    (', '.join(required_tags), package_data))
-        
+
     # First step: filter by OS
     os_packages = _filter_packages(package_data, os_name)
     if _debug > 1:
@@ -2743,7 +2743,7 @@ def find_matching_package(package_data, required_tags=()):
     return package[0]
 
 def _test_package_data_files():
-    
+
     example_package_data = {
         'egenix-mx-base-3.2.7-py2.7_ucs2-linux-x86_64-prebuilt.zip': [
             'linux', 'x64', 'py2.7', 'ucs2'],
@@ -2768,7 +2768,7 @@ def _test_package_data_files():
     test_file = 'test-package-data.tags'
     if os.path.exists(test_file):
         os.remove(test_file)
-    
+
     write_package_data(test_file, example_package_data)
     data = read_package_data(test_file)
     assert data == example_package_data, (data, example_package_data)
@@ -2809,7 +2809,7 @@ class CompilerSupportMixin:
 
     """ Compiler support mixin which makes sure that the .compiler
         attribute is properly setup.
-    
+
     """
     # Internal flag
     prepared_compiler = 0
@@ -2826,11 +2826,11 @@ class CompilerSupportMixin:
             else:
                 raise CCompilerError('no C compiler setup; cannot continue')
             compiler = self._get_compiler_object()
-            
+
         elif self.prepared_compiler:
             # Return the already prepared compiler
             return compiler
-        
+
         # Work around a bug in distutils <= 1.0.3
         if compiler.exe_extension is None:
             compiler.exe_extension = ''
@@ -2965,7 +2965,7 @@ class mx_autoconf(CompilerSupportMixin,
     def finalize_options(self):
 
         config.finalize_options(self)
-        
+
         if self.defines:
             defines = []
             for defstr in self.defines.split(','):
@@ -3001,7 +3001,7 @@ class mx_autoconf(CompilerSupportMixin,
     def run(self):
 
         # Setup compiler
-        compiler = self.prepare_compiler()        
+        compiler = self.prepare_compiler()
 
         # Check compiler setup
         log.info('checking compiler setup')
@@ -3134,7 +3134,7 @@ class mx_autoconf(CompilerSupportMixin,
 
             Return 1/0 depending on whether the compiler can produce
             code or not.
-        
+
         """
         body = "int main (void) { return 0; }"
         return self.check_compiler(body)
@@ -3147,7 +3147,7 @@ class mx_autoconf(CompilerSupportMixin,
 
             For documentation of the other arguments see the base
             class' .try_link().
-        
+
         """
         self.prepare_compiler()
         return self.try_link(sourcecode, headers, include_dirs,
@@ -3160,7 +3160,7 @@ class mx_autoconf(CompilerSupportMixin,
 
             For documentation of the other arguments see the base
             class' .try_link().
-        
+
         """
         body = """
         typedef struct _mxstruct {int a; int b;} mxstruct;
@@ -3186,7 +3186,7 @@ class mx_autoconf(CompilerSupportMixin,
 
             For documentation of the other arguments see the base
             class' .try_link().
-        
+
         """
         body = []
         if prototype:
@@ -3209,7 +3209,7 @@ class mx_autoconf(CompilerSupportMixin,
 
             For documentation of the other arguments see the base
             class' .try_link().
-        
+
         """
         body = "int main (void) { return 0; }"
         return self.check_compiler(body, headers, include_dirs,
@@ -3276,7 +3276,7 @@ class mx_autoconf(CompilerSupportMixin,
             dir = find_file(filename, paths, pattern)
             if dir is not None:
                 return (dir, os.path.join(dir, filename))
-            
+
         return (None, None)
 
 #
@@ -3342,7 +3342,7 @@ else:
 class mx_Distribution(Distribution):
 
     """ Distribution class which knows about our distutils extensions.
-        
+
     """
     # List of UnixLibrary instances
     unixlibs = None
@@ -3414,7 +3414,7 @@ class mx_Extension(Extension):
 
     """ Extension class which allows specifying whether the extension
         is required to build or optional.
-        
+
     """
     # Is this Extension required to build or can we issue a Warning in
     # case it fails to build and continue with the remaining build
@@ -3493,14 +3493,14 @@ class mx_build(build):
         This build command builds extensions in properly separated
         directories (which includes building different Unicode
         variants in different directories).
-        
+
     """
     # Skip the build process ?
     skip = None
 
     # Assume prebuilt archive ?
     prebuilt = None
-   
+
     user_options = build.user_options + [
             ('skip', None,
              'skip build and reuse the existing build files'),
@@ -3532,7 +3532,7 @@ class mx_build(build):
 
         if self.skip is None:
             self.skip = 0
-            
+
         # Handle prebuilt archives
         if os.path.exists(PREBUILT_MARKER):
             self.prebuilt = 1
@@ -3553,19 +3553,19 @@ class mx_build(build):
                     mxSetup = build_pickle.get('mxSetup', {})
                 else:
                     mxSetup = {}
-                    
+
                 print("""
 --------------------------------------------------------------------
 
 ERROR: Cannot find the build information needed for your platform.
-                
+
 Please check that you have downloaded the right prebuilt archive for
 your platform and Python version.
 
 Product name:        %s
 Product version:     %s
 mxSetup version:     %s
-    
+
 Your Python installation uses these settings:
 
     Python version:  %s
@@ -3596,7 +3596,7 @@ The prebuilt archive was built for:
             if self.force:
                 log.info('prebuilt archive found: ignoring the --force option')
                 self.force = 0
-                
+
             # Override settings with data from a possibly existing
             # build pickle
             log.info('prebuilt archive found: skipping the build process and '
@@ -3753,7 +3753,7 @@ The prebuilt archive was built for:
         unicode_aware = not pure_python_build
         state['mxSetup'] = {
             '__version__': __version__,
-            'unicode_aware': unicode_aware, 
+            'unicode_aware': unicode_aware,
             'py_version': py_version(unicode_aware=unicode_aware),
             'sys_platform': sys.platform,
             'get_name': self.distribution.metadata.get_name(),
@@ -3895,7 +3895,7 @@ The prebuilt archive was built for:
         if platform is not None:
             log.info('setting platform to %r' % platform)
             mx_set_platform(platform)
-        
+
         log.info('restoring build data from a previous build run')
         distribution_data = None
         for sub_command, data in list(state.items()):
@@ -3987,13 +3987,13 @@ class mx_build_clib(CompilerSupportMixin,
 
     """ build_clib command which builds the libs using
         separate temp dirs
-        
+
     """
     # Lib of output files
     outfiles = None
 
     def finalize_options(self):
-        
+
         build_clib.finalize_options(self)
         self.outfiles = []
 
@@ -4038,7 +4038,7 @@ class mx_build_clib(CompilerSupportMixin,
             compiler.create_static_lib(objects, lib_name,
                                        output_dir=self.build_clib,
                                        debug=self.debug)
-            
+
             # Record the name of the library we just created
             self.outfiles.append(
                 compiler.library_filename(lib_name,
@@ -4047,7 +4047,7 @@ class mx_build_clib(CompilerSupportMixin,
         finally:
             # Cleanup local changes to the configuration
             self.build_temp = build_temp_base
-        
+
     def build_libraries(self, libraries):
 
         for (lib_name, build_info) in libraries:
@@ -4072,7 +4072,7 @@ class mx_build_ext(CompilerSupportMixin,
 
     """ build_ext command which runs mx_autoconf command before
         trying to build anything.
-        
+
     """
     user_options = build_ext.user_options + [
         ('disable-build=', None,
@@ -4095,7 +4095,7 @@ class mx_build_ext(CompilerSupportMixin,
 
     # Output files
     output_files = None
-    
+
     def finalize_options(self):
 
         build_ext.finalize_options(self)
@@ -4121,7 +4121,7 @@ class mx_build_ext(CompilerSupportMixin,
             # get linked against all Unix libs that were built...
             #self.libraries[:0] = libs
             self.library_dirs[:0] = paths
-            
+
         # Assure that mx_autoconf has been run and store a reference
         # in .autoconf
         self.run_command('mx_autoconf')
@@ -4134,7 +4134,7 @@ class mx_build_ext(CompilerSupportMixin,
 
         # Make sure the compiler is setup correctly
         compiler = self.prepare_compiler()
-        
+
         # Make sure that any autoconf actions use the same compiler
         # settings as we do (the .compiler is set up in build_ext.run()
         # just before calling .build_extensions())
@@ -4158,7 +4158,7 @@ class mx_build_ext(CompilerSupportMixin,
             print ('built these extensions: %s' % (
                 ', '.join(ext.name for ext in self.extensions)))
         log.info('')
-         
+
     def build_extension(self, ext):
 
         # Prevent duplicate builds of the same extension
@@ -4220,7 +4220,7 @@ class mx_build_ext(CompilerSupportMixin,
                                 'needed include file "%s" not found' %
                                 (ext.name, filename))
                         return
-                    
+
         # Search for libraries
         if hasattr(ext, 'needed_libraries') and \
            ext.needed_libraries:
@@ -4290,7 +4290,7 @@ class mx_build_ext(CompilerSupportMixin,
                                 'needed library "%s" not found' %
                                 (ext.name, libname))
                         return
-                    
+
         # Build each extension in its own subdir of build_temp (to
         # avoid accidental sharing of object files between extensions
         # having the same name, e.g. mxODBC.o).
@@ -4326,7 +4326,7 @@ class mx_build_ext(CompilerSupportMixin,
         # Build the extension
         successfully_built = 0
         try:
-            
+
             # Skip extensions which cannot be built if the required
             # option is given and set to false.
             required = not hasattr(ext, 'required') or ext.required
@@ -4391,7 +4391,7 @@ class mx_build_py(build_py):
 
     """ build_py command which also allows removing Python source code
         after the byte-code compile process.
-        
+
     """
     user_options = build_py.user_options + [
         ('without-source', None, "only include Python byte-code"),
@@ -4404,7 +4404,7 @@ class mx_build_py(build_py):
 
     # Output cache
     output_files = None
-    
+
     def run(self):
 
         if self.without_source:
@@ -4475,7 +4475,7 @@ class mx_build_py(build_py):
             files.append(file)
         self.output_files[cache_key] = files
         return files
-        
+
 #
 # mx Build Data command
 #
@@ -4484,7 +4484,7 @@ class mx_build_data(Command):
 
     """ build_data command which allows copying (external) data files
         into the build tree.
-        
+
     """
     description = "build data files (copy them to the build directory)"
 
@@ -4492,7 +4492,7 @@ class mx_build_data(Command):
         ('build-lib=', 'b',
          "directory to store built Unix libraries in"),
         ]
-    
+
     boolean_options = []
 
     # Location of the build directory
@@ -4532,7 +4532,7 @@ class mx_build_data(Command):
 
             entry = data_files[i]
             copied_data_files = []
-            
+
             if isinstance(entry, str):
                 # Unix- to platform-convention conversion
                 entry = convert_to_platform_path(entry)
@@ -4550,7 +4550,7 @@ class mx_build_data(Command):
                     # distutils internal Unix path format)
                     copied_data_files.append(
                         convert_to_distutils_path(filename))
-                    
+
             elif isinstance(entry, tuple):
                 origin, target = entry
                 # Unix- to platform-convention conversion
@@ -4615,7 +4615,7 @@ class mx_build_data(Command):
             print ('After build_data: ')
             print (' data_files=%r' % data_files)
             print (' outfiles=%r' % self.outfiles)
-        
+
     def run(self):
 
         if not self.distribution.data_files:
@@ -4647,7 +4647,7 @@ class UnixLibrary:
 
     # Make options
     make_options = None
-    
+
     def __init__(self, libname, sourcetree, libfiles,
                  configure=None, configure_options=None,
                  make_options=None):
@@ -4670,7 +4670,7 @@ class UnixLibrary:
             self.make_options = make_options
         else:
             self.make_options = []
-            
+
     def get(self, option, alternative=None):
 
         return getattr(self, option, alternative)
@@ -4679,7 +4679,7 @@ class mx_build_unixlib(Command):
 
     """ This command compiles external libs using the standard Unix
         procedure for this:
-        
+
         ./configure
         make
 
@@ -4688,7 +4688,7 @@ class mx_build_unixlib(Command):
 
     # make program to use
     make = None
-    
+
     user_options = [
         ('build-lib=', 'b',
          "directory to store built Unix libraries in"),
@@ -4701,7 +4701,7 @@ class mx_build_unixlib(Command):
         ('force', 'f',
          "forcibly reconfigure"),
         ]
-    
+
     boolean_options = ['force']
 
     def initialize_options(self):
@@ -4746,7 +4746,7 @@ class mx_build_unixlib(Command):
         except DistutilsExecError as msg:
             raise CompileError(msg)
         return rc
-    
+
     def run_configure(self, options=[], dir=None, configure='configure'):
 
         """ Run the configure script using options is given.
@@ -4898,7 +4898,7 @@ class mx_install(install):
     # Force installation into the platlib, even if the package is a
     # pure Python library
     force_non_pure = 0
-    
+
     user_options = install.user_options + [
         ('force-non-pure', None,
          "force installation into the platform dependent directory"),
@@ -4908,11 +4908,11 @@ class mx_install(install):
 
         install.initialize_options(self)
         self.force_non_pure = 0
-    
+
     def finalize_options(self):
 
         fix_install_data = (self.install_data is None)
-            
+
         install.finalize_options(self)
 
         # Force installation into the platform dependent directories,
@@ -4973,7 +4973,7 @@ class mx_install_data(install_data):
         Two data_files formats are supported:
 
         * string entries
-        
+
             The files (which may include wildcards) are copied to the
             installation directory using the same relative path.
 
@@ -4986,7 +4986,7 @@ class mx_install_data(install_data):
             If dest includes a filename, the file orig is copied to
             the file dest. Otherwise, the original filename is used
             and the file copied to the dest directory.
-    
+
     """
 
     user_options = install_data.user_options + [
@@ -5055,7 +5055,7 @@ class mx_install_lib(install_lib):
     """ Patch the install_lib to work around a problem where the
         .get_outputs() method would return filenames like '.pyoo',
         '.pyco', etc.
-        
+
     """
     def _bytecode_filenames (self, filenames):
 
@@ -5101,7 +5101,7 @@ class mx_uninstall(Command):
 
     def finalize_options(self):
         pass
-        
+
     def run(self):
 
         # Execute build
@@ -5494,7 +5494,7 @@ class mx_sdist_web(mx_sdist):
 
         # Add setup.tags
         files.append(SETUP_TAGS)
-        
+
         if _debug:
             print ('Updated file list: %r' % files)
 
@@ -5512,7 +5512,7 @@ class WebInstaller:
         The default implementation uses the setup.tags file to
         determine a suitable installation package and downloads this
         into the package installation directory.
-        
+
     """
     # Package installation directory
     dir = None
@@ -5775,9 +5775,9 @@ def run_web_installer(dir, landmarks, web_installer_class=WebInstaller,
 class mx_bdist(bdist):
 
     """ Generic binary distribution command.
-    
+
     """
-    
+
     def finalize_options(self):
 
         # Default to <platform>-<pyversion> on all platforms
@@ -5833,7 +5833,7 @@ class mx_bdist_rpm(bdist_rpm):
                                      buildcmd[inspos:])
         else:
             raise DistutilsError('could not insert distutils command in RPM build command')
-        
+
         # Insert into install command
         i = l.index('%install')
         installcmd = l[i + 1]
@@ -5847,7 +5847,7 @@ class mx_bdist_rpm(bdist_rpm):
             raise DistutilsError('could not insert distutils command in RPM install command')
 
         return l
-    
+
 #
 # mx bdist_wininst command
 #
@@ -5859,7 +5859,7 @@ class mx_bdist_wininst(bdist_wininst):
         the Python source code.
 
     """
-    
+
     def finalize_options(self):
 
         bdist_wininst.finalize_options(self)
@@ -5878,7 +5878,7 @@ class mx_bdist_wininst(bdist_wininst):
 class mx_bdist_inplace(bdist_dumb):
 
     """ Build an in-place binary distribution.
-    
+
     """
 
     # Path prefix to use in the distribution (all files will be placed
@@ -5915,7 +5915,7 @@ class mx_bdist_inplace(bdist_dumb):
 class mx_bdist_zope(mx_bdist_inplace):
 
     """ Build binary Zope product distribution.
-    
+
     """
 
     # Path prefix to use in the distribution (all files will be placed
@@ -6078,7 +6078,7 @@ class mx_bdist_prebuilt(mx_sdist):
         # Remove most subdirs from the MANIFEST file list
         files = []
         for path in self.filelist.files:
-            
+
             # Note: the MANIFEST file list can use both os.sep and the
             # distutils dir separator as basis
 
@@ -6130,7 +6130,7 @@ class mx_bdist_prebuilt(mx_sdist):
 
         if _debug:
             print('pre-built files:', repr(self.filelist.files))
-                
+
     def run(self):
 
         if not self.skip_build:
@@ -6195,7 +6195,7 @@ class mx_bdist_egg(bdist_dumb):
         In addition to the distribution files, it also contains an
         EGG-INFO directory with some additional meta-information about
         the package.
-    
+
     """
     # Build a Unicode-aware egg ? easy_install does not support having
     # UCS2/UCS4 markers in the filename, so we place the egg files
@@ -6279,7 +6279,7 @@ class mx_bdist_egg(bdist_dumb):
         egg_info_dir = os.path.join(self.bdist_dir, 'EGG-INFO')
         self.mkpath(egg_info_dir)
         if not self.dry_run:
-            
+
             # add PKG-INFO file
             self.distribution.metadata.write_pkg_info(egg_info_dir)
 
@@ -6308,7 +6308,7 @@ class mx_bdist_egg(bdist_dumb):
             self.write_egg_info_file(egg_info_dir,
                                      'top_level.txt',
                                      list(top_level_modules.keys()))
-                
+
             # add dependency_links.txt
             self.write_egg_info_file(egg_info_dir,
                                      'dependency_links.txt',
@@ -6423,7 +6423,7 @@ if setuptools is not None:
 # bdist_wheel distribution command
 #
 if bdist_wheel is not None:
-    
+
     class mx_bdist_wheel(bdist_wheel):
 
         """ Build a wheel binary distribution.
@@ -6497,7 +6497,7 @@ if bdist_msi is not None:
                 self.target_version = py_version(unicode_aware=0)
 
             bdist_msi.finalize_options(self)
-            
+
             if self.title is None:
                 self.title = self.distribution.get_fullname()
 
@@ -6670,7 +6670,7 @@ if bdist_msi is not None:
                                  self.plat_name))
 
 else:
-    
+
     class mx_bdist_msi:
         pass
 
@@ -6689,7 +6689,7 @@ if setuptools is not None:
     class mx_egg_info(egg_info.egg_info):
 
         def find_sources(self):
-            
+
             """ This method is used to generate the SOURCES.txt
                 manifest file in the EGG-INFO directory.
 
@@ -6716,17 +6716,17 @@ if upload is not None:
         """ Upload command which allows to separate uploads from distribution
             builds.
 
-            The distribution files can be given using the --dist-file command. 
+            The distribution files can be given using the --dist-file command.
             The argument has to be of the form "command,pyversion,filename"
             with:
-            
+
             * command == 'bdist_egg', 'sdist' or 'bdist_msi'
             * pyversion == '', '2.6', '2.7', etc.
             * filename == filename of the distribution file
 
             command has to be the distribution command which results in
             the given distribution file.
-            
+
         """
 
         # Distribution file entry
@@ -6752,7 +6752,7 @@ if upload is not None:
             upload.finalize_options(self)
 
         def run(self):
-        
+
             dist_files = self.distribution.dist_files
             if not dist_files and self.dist_file is not None:
                 dist_files = [self.dist_file]
@@ -6763,7 +6763,7 @@ if upload is not None:
 
 else:
     mx_upload = None
-    
+
 ### Helpers to allow rebasing packages within setup.py files
 
 def rebase_packages(packages, new_base_package, filter=None):
@@ -6875,7 +6875,7 @@ def rebase_extensions(extensions,
         new_ext.needed_libraries = new_needed_libraries
 
     return rebased_extensions
-    
+
 ###
 
 def run_setup(configurations):
@@ -6986,7 +6986,7 @@ def run_setup(configurations):
         extensions['bdist_egg'] = mx_bdist_egg_setuptools
     if bdist_wheel is not None:
         extensions['bdist_wheel'] = mx_bdist_wheel
-        
+
     kws['cmdclass'] = extensions
 
     # Invoke distutils setup
