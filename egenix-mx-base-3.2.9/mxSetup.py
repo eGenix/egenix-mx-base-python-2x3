@@ -11,6 +11,10 @@
     or http://www.egenix.com/products/python/mxBase/ for details.
 
 """
+
+from __future__ import print_function
+
+from __future__ import absolute_import
 #
 # History:
 # 3.9.5: Add fix for bdist_wheel to make it work with mxSetup
@@ -73,8 +77,8 @@
 # 1.9.0: added new include and lib path logic; added bdist_zope command
 # Older revisions are not documented.
 #
-import types, glob, os, sys, re, cPickle, copy, imp, shutil
-import urllib2, urlparse
+import types, glob, os, sys, re, copy, imp, shutil
+
 
 ### Globals
 
@@ -86,20 +90,27 @@ _debug = int(os.environ.get('EGENIX_MXSETUP_DEBUG', 0))
 
 # Python version running this module
 python_version = '%i.%i' % sys.version_info[:2]
+PY2 = (sys.version_info[0] == 2)
+PY3 = (sys.version_info[0] == 3)
+
+# Aliases for Python 3 compatibility
+if PY3:
+    unicode = str
+    unichr = chr
 
 # Prebuilt archive marker file
 PREBUILT_MARKER = 'PREBUILT'
 
 # Allowed configuration value types; all other configuration entries
 # are removed by run_setup()
-ALLOWED_SETUP_TYPES = (types.StringType,
-                       types.ListType,
-                       types.TupleType,
-                       types.IntType,
-                       types.FloatType,
-                       types.DictType)
+ALLOWED_SETUP_TYPES = (bytes,
+                       list,
+                       tuple,
+                       int,
+                       float,
+                       dict)
 if python_version >= '2.6':
-    ALLOWED_SETUP_TYPES += (types.UnicodeType,)
+    ALLOWED_SETUP_TYPES += (unicode,)
 
 # Some Python distutils versions don't support all setup keywords we
 # use
@@ -125,52 +136,25 @@ __import__('pkg_resources').declare_namespace(__name__)
     
 ### Python compatibility support
 
-if 1:
-    # Patch True/False into builtins for those versions of Python that
-    # don't support it
-    try:
-        True
-    except NameError:
-        __builtins__['True'] = 1
-        __builtins__['False'] = 0
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle 
 
-    # StringTypes into types module for those versions of Python that
-    # don't support it
-    try:
-        types.StringTypes
-    except AttributeError:
-        types.StringTypes = (types.StringType, types.UnicodeType)
+try:
+    import urllib2
+except ImportError:
+    import urllib.request as urllib2
 
-    # Patch isinstance() to support tuple arguments
-    try:
-        isinstance('', types.StringTypes)
-    except TypeError:
-        def py22_isinstance(obj, classes,
-                            orig_isinstance=isinstance):
-            if type(classes) is not types.TupleType:
-                return orig_isinstance(obj, classes)
-            for classobj in classes:
-                if orig_isinstance(obj, classobj):
-                    return True
-            return False
-        __builtins__['isinstance'] = py22_isinstance
+try:
+    import urlparse
+except ImportError:
+    import urllib.parse as urlparse
 
-    # UnicodeDecodeError is new in Python 2.3
-    try:
-        UnicodeDecodeError
-    except NameError:
-        UnicodeDecodeError = UnicodeError
-
-if python_version < '2.2':
-    def module_loaded(name):
-        return sys.modules.has_key(name)
-    def has_substring(substr, text):
-        return text.find(substr) >= 0
-else:
-    def module_loaded(name):
-        return name in sys.modules
-    def has_substring(substr, text):
-        return substr in text
+def module_loaded(name):
+    return name in sys.modules
+def has_substring(substr, text):
+    return substr in text
 
 ### Errors
 
@@ -226,9 +210,9 @@ elif '--use-setuptools' in sys.argv:
     sys.argv.remove('--use-setuptools')
     try:
         import setuptools
-        print 'running mxSetup.py with setuptools patched distutils'
+        print('running mxSetup.py with setuptools patched distutils')
     except ImportError:
-        print 'could not import setuptools; ignoring --use-setuptools'
+        print('could not import setuptools; ignoring --use-setuptools')
         setuptools = None
 else:
     setuptools = None
@@ -249,9 +233,9 @@ if not hasattr(distutils.util, 'set_platform'):
     # will only do a shallow copy of the code object
     import types
     orig_get_platform = types.FunctionType(
-        distutils.util.get_platform.func_code,
-        distutils.util.get_platform.func_globals,
-        distutils.util.get_platform.func_name)
+        distutils.util.get_platform.__code__,
+        distutils.util.get_platform.__globals__,
+        distutils.util.get_platform.__name__)
 
     # Global platform string
     PLATFORM = orig_get_platform()
@@ -266,9 +250,9 @@ if not hasattr(distutils.util, 'set_platform'):
 
     # Replace the code object in distutils get_platform function so
     # that all existing imports get changed as well
-    distutils.util.get_platform.func_code = mx_get_platform.func_code
-    assert (distutils.util.get_platform.func_code !=
-            orig_get_platform.func_code)
+    distutils.util.get_platform.__code__ = mx_get_platform.__code__
+    assert (distutils.util.get_platform.__code__ !=
+            orig_get_platform.__code__)
     distutils.util.PLATFORM = PLATFORM
 
     # Replace distutils' own get_platform() function with ours
@@ -472,7 +456,7 @@ def get_python_include_dir():
                           include_dir)
         return include_dir
 
-    except IOError, reason:
+    except IOError as reason:
         if _debug:
             print ('get_config_h_filename: %s' % reason)
         # Ok, we've hit a problem with the Python installation or
@@ -713,7 +697,7 @@ def read_console(prompt='', timeout=0, force=False, timeout_optional=False):
                 raise NotSupportedError('read_console() timeout not supported')
             else:
                 readable = True
-        except select.error, reason:
+        except select.error as reason:
             # Select did not work; this is most likely a platform
             # which doesn't allow reading from stdin or a stdin
             # emulation which is not supported by select()
@@ -1114,9 +1098,9 @@ def find_file(filename, paths, pattern=None):
 
     """
     if _debug:
-        print 'looking for %s ...' % filename
+        print('looking for %s ...' % filename)
         if pattern:
-            print ' applying pattern check using %r' % pattern
+            print(' applying pattern check using %r' % pattern)
     for dir in paths:
         pathname = os.path.join(dir, filename)
         if os.path.exists(pathname):
@@ -1125,19 +1109,19 @@ def find_file(filename, paths, pattern=None):
                 if re.search(pattern, data, re.I) is None:
                     data = None
                     if _debug:
-                        print ' %s: found, but not matched' % dir
+                        print(' %s: found, but not matched' % dir)
                     continue
                 data = None
                 if _debug:
-                    print ' %s: found and matched' % dir
+                    print(' %s: found and matched' % dir)
             else:
                 if _debug:
-                    print ' %s: found' % dir
+                    print(' %s: found' % dir)
             return dir
         elif _debug:
-            print ' %s: not found' % dir
+            print(' %s: not found' % dir)
     if _debug:
-        print 'not found'
+        print('not found')
     return None
 
 def is_python_package(path):
@@ -1286,7 +1270,7 @@ def verify_package_version(package, version):
     package_path = package.replace('.', os.sep)
     try:
         m = __import__(package_path, None, None, ['*'])
-    except ImportError, reason:
+    except ImportError as reason:
         raise ImportError('Cannot find %s package: %s' % (package, reason))
     dist_version = parse_mx_version(version)
     package_version = parse_mx_version(m.__version__)
@@ -1436,7 +1420,7 @@ if not hasattr(shutil, 'register_format'):
 else:
     # Python 2.7+ and 3.2+ use the new shutil archive functions instead
     # of the ones from distutils, so register our archives there
-    for archive_name, archive_params in register_archive_formats.items():
+    for archive_name, archive_params in list(register_archive_formats.items()):
         shutil.register_format(archive_name, *archive_params)
 
 def build_path(dirs):
@@ -1489,7 +1473,7 @@ def verify_path(path):
     for dir in path:
         if os.path.exists(dir) and \
            os.path.isdir(dir):
-            if not d.has_key(dir):
+            if dir not in d:
                 d[dir] = 1
                 l.append(dir)
     path[:] = l
@@ -1511,7 +1495,7 @@ def get_msvc_paths():
         # If possible, assume that the environment is already
         # properly setup and read the setting from there - this is
         # important since we could be cross-compiling
-        if os.environ.has_key('lib') and os.environ.has_key('include'):
+        if 'lib' in os.environ and 'include' in os.environ:
             libpath = os.environ['lib'].split(os.pathsep)
             inclpath = os.environ['include'].split(os.pathsep)
         else:
@@ -1527,7 +1511,7 @@ def get_msvc_paths():
             msvccompiler = MSVCCompiler()
             inclpath = msvccompiler.get_msvc_paths('include')
             libpath = msvccompiler.get_msvc_paths('library')
-        except Exception, why:
+        except Exception as why:
             log.error('*** Problem: %s' % why)
             import traceback
             traceback.print_exc()
@@ -1577,7 +1561,7 @@ INCLPATH = build_path(['/usr/local/include',
                        os.path.join(sys.prefix, 'include')])
 
 # Add 32- or 64-bit dirs if needed by the Python version
-if sys.maxint > 2147483647L:
+if sys.maxsize > 2147483647:
     # 64-bit build
     STDLIBPATH.extend(['/usr/lib64', '/opt/lib64'])
     LIBPATH.extend(['/usr/local/lib64', '/opt/local/lib64'])
@@ -1633,15 +1617,15 @@ if _debug > 1:
     # use mxSetup for extracting information from the setup module to
     # fail, since they don't expect the extra output. This is why we
     # only show this information for higher _debug levels.
-    print 'mxSetup will be using these search paths:'
-    print ' std lib path:', STDLIBPATH
-    print ' std include path:', STDINCLPATH
-    print ' additional lib path:', LIBPATH
-    print ' additional include path:', INCLPATH
-    print ' additional autoconf lib path:', FINDLIBPATH
-    print ' additional autoconf include path:', FINDINCLPATH
-    print ' library types:', LIB_TYPES
-    print ' Python include path: %r' % get_python_include_dir()
+    print('mxSetup will be using these search paths:')
+    print(' std lib path:', STDLIBPATH)
+    print(' std include path:', STDINCLPATH)
+    print(' additional lib path:', LIBPATH)
+    print(' additional include path:', INCLPATH)
+    print(' additional autoconf lib path:', FINDLIBPATH)
+    print(' additional autoconf include path:', FINDINCLPATH)
+    print(' library types:', LIB_TYPES)
+    print(' Python include path: %r' % get_python_include_dir())
 
 ### Download tools
 
@@ -1653,7 +1637,6 @@ def fetch_url(url, timeout=30):
         an error.
 
     """
-    import urllib2
     if python_version >= '2.6':
         data_file = urllib2.urlopen(url, None, timeout)
     elif python_version >= '2.3':
@@ -2126,7 +2109,7 @@ def write_package_data(datafile, data, base_url=None, replace=False,
         package_data = read_package_data(datafile)
     else:
         package_data = {}
-    for url, tags in data.iteritems():
+    for url, tags in data.items():
         if base_url is not None:
             if base_url_mode == 'join':
                 url = urlparse.urljoin(base_url, url)
@@ -2135,7 +2118,7 @@ def write_package_data(datafile, data, base_url=None, replace=False,
             elif base_url_mode == 'template':
                 try:
                     url = base_url % url
-                except TypeError, reason:
+                except TypeError as reason:
                     raise TypeError('problem formatting url from %r: %s' %
                                     (base_url, reason))
             else:
@@ -2143,7 +2126,7 @@ def write_package_data(datafile, data, base_url=None, replace=False,
         if add_hash_tag:
             try:
                 url = hashed_download_url(url, hash_tag_mode)
-            except urllib2.URLError, reason:
+            except urllib2.URLError as reason:
                 raise DistutilsError(
                     'could not generate hash for download URL %s' %
                     url)
@@ -2151,7 +2134,7 @@ def write_package_data(datafile, data, base_url=None, replace=False,
 
     # Write data to datafile
     f = open(datafile, 'w')
-    items = package_data.items()
+    items = list(package_data.items())
     items.sort()
     for urlkey, urltags in items:
         # When making changes to the format, also update
@@ -2221,7 +2204,7 @@ def _filter_packages(package_data, tag):
     """
     return dict(
         (url, tags)
-        for (url, tags) in package_data.iteritems()
+        for (url, tags) in package_data.items()
         if tag in tags)
 
 def _subset_packages(package_data, tags):
@@ -2234,7 +2217,7 @@ def _subset_packages(package_data, tags):
         tags_set = set(tags)
     return dict(
         (url, tags)
-        for (url, tags) in package_data.iteritems()
+        for (url, tags) in package_data.items()
         if tags_set.intersection(tags))
 
 def _setminus_packages(package_data, tags):
@@ -2247,7 +2230,7 @@ def _setminus_packages(package_data, tags):
         tags_set = set(tags)
     return dict(
         (url, tags)
-        for (url, tags) in package_data.iteritems()
+        for (url, tags) in package_data.items()
         if not tags_set.intersection(tags))
 
 def _find_source_package(package_data):
@@ -2277,7 +2260,7 @@ def _find_source_package(package_data):
     # Choose one of the available source packages (by sorting and
     # picking the last one to make the choice deterministic; this will
     # prefer zip files over tar files)
-    package_list = sorted(source_packages.iteritems())
+    package_list = sorted(source_packages.items())
     package = package_list[-1]
     if _debug:
         print ('found source package: %r' % (package,))
@@ -2753,7 +2736,7 @@ def find_matching_package(package_data, required_tags=()):
 
     # Choose one of the available packages (by sorting and picking the
     # last one to make the choice deterministic)
-    package_list = sorted(python_packages.iteritems())
+    package_list = sorted(python_packages.items())
     package = package_list[-1]
     if _debug:
         print ('found binary package: %r' % (package,))
@@ -3062,7 +3045,7 @@ class mx_autoconf(CompilerSupportMixin,
         config_h = get_config_h_filename()
         try:
             configfile = open(config_h)
-        except IOError,why:
+        except IOError as why:
             log.warn('could not open %s file' % config_h)
             configuration = {}
         else:
@@ -3080,7 +3063,7 @@ class mx_autoconf(CompilerSupportMixin,
         # Check APIs
         for apiname, includefiles in self.api_checks:
             macro_name = 'HAVE_' + apiname.upper()
-            if not configuration.has_key(macro_name):
+            if macro_name not in configuration:
                 log.info('checking for availability of %s() '
                          '(errors from this can safely be ignored)' % apiname)
                 if self.check_function(apiname, includefiles):
@@ -3093,7 +3076,7 @@ class mx_autoconf(CompilerSupportMixin,
                     undef.append(macro_name)
 
         # Compiler tests
-        if not configuration.has_key('BAD_STATIC_FORWARD'):
+        if 'BAD_STATIC_FORWARD' not in configuration:
             log.info('checking compiler for bad static forward handling '
                      '(errors from this can safely be ignored)')
             if self.check_bad_staticforward():
@@ -3128,7 +3111,7 @@ class mx_autoconf(CompilerSupportMixin,
         # new incompatible way to process .define and .undef
         if build_ext.define:
             #print repr(build_ext.define)
-            if type(build_ext.define) is types.StringType:
+            if isinstance(build_ext.define, str):
                 # distutils < 1.0.2 needs this:
                 l = build_ext.define.split(',')
                 build_ext.define = map(lambda symbol: (symbol, '1'), l)
@@ -3137,7 +3120,7 @@ class mx_autoconf(CompilerSupportMixin,
             build_ext.define = define
         if build_ext.undef:
             #print repr(build_ext.undef)
-            if type(build_ext.undef) is types.StringType:
+            if isinstance(build_ext.undef, str):
                 # distutils < 1.0.2 needs this:
                 build_ext.undef = build_ext.undef.split(',')
             build_ext.undef = build_ext.undef + undef
@@ -3251,7 +3234,7 @@ class mx_autoconf(CompilerSupportMixin,
                  + FINDINCLPATH)
         verify_path(paths)
         if _debug:
-            print 'INCLPATH', paths
+            print('INCLPATH', paths)
         dir = find_file(filename, paths, pattern)
         if dir is None:
             return (None, None)
@@ -3280,8 +3263,8 @@ class mx_autoconf(CompilerSupportMixin,
                  + FINDLIBPATH)
         verify_path(paths)
         if _debug:
-            print 'LIBPATH: %r' % paths
-            print 'Library types: %r' % lib_types
+            print('LIBPATH: %r' % paths)
+            print('Library types: %r' % lib_types)
 
         # Try to first find a shared library to use and revert
         # to a static one, if no shared lib can be found
@@ -3289,7 +3272,7 @@ class mx_autoconf(CompilerSupportMixin,
             filename = compiler.library_filename(libname,
                                                  lib_type=lib_type)
             if _debug:
-                print 'looking for library file %s' % filename
+                print('looking for library file %s' % filename)
             dir = find_file(filename, paths, pattern)
             if dir is not None:
                 return (dir, os.path.join(dir, filename))
@@ -3322,7 +3305,7 @@ if hasattr(MSVCCompiler, 'initialize'):
 
     def mx_msvccompiler_initialize(self, *args, **kws):
 
-        apply(old_MSVCCompiler_initialize, (self,) + args, kws)
+        old_MSVCCompiler_initialize(*(self,) + args, **kws)
 
         # Add our extra options
         self.compile_options.extend(MSVC_COMPILER_FLAGS)
@@ -3339,7 +3322,7 @@ else:
 
     def mx_msvccompiler__init__(self, *args, **kws):
 
-        apply(old_MSVCCompiler__init__, (self,) + args, kws)
+        old_MSVCCompiler__init__(*(self,) + args, **kws)
 
         # distutils 2.5.0 separates the initialization of the
         # .compile_options out into a new method
@@ -3490,14 +3473,14 @@ class mx_Extension(Extension):
                      'include_needed_libraries',
                      'data_files',
                      'packages'):
-            if kws.has_key(attr):
+            if attr in kws:
                 setattr(self, attr, kws[attr])
                 del kws[attr]
             else:
                 value = getattr(self, attr)
                 if type(value) == type(()):
                     setattr(self, attr, list(value))
-        apply(Extension.__init__, (self,) + args, kws)
+        Extension.__init__(*(self,) + args, **kws)
 
 #
 # mx Build command
@@ -3571,7 +3554,7 @@ class mx_build(build):
                 else:
                     mxSetup = {}
                     
-                print """
+                print("""
 --------------------------------------------------------------------
 
 ERROR: Cannot find the build information needed for your platform.
@@ -3608,7 +3591,7 @@ The prebuilt archive was built for:
                 mxSetup.get('get_platform', 'unknown'),
                 mxSetup.get('sys_platform', 'unknown'),
                 mxSetup.get('__version__', 'unknown'),
-                )
+                ))
                 sys.exit(1)
             if self.force:
                 log.info('prebuilt archive found: ignoring the --force option')
@@ -3658,11 +3641,11 @@ The prebuilt archive was built for:
         pickle_filename = self.get_build_pickle_pathname()
         if os.path.exists(pickle_filename):
             if _debug:
-                print 'added pickle:', pickle_filename
+                print('added pickle:', pickle_filename)
             outputs[pickle_filename] = 1
 
         # Return a sorted list
-        outputs = outputs.keys()
+        outputs = list(outputs.keys())
         outputs.sort()
         return outputs
 
@@ -3717,26 +3700,26 @@ The prebuilt archive was built for:
         # Remove data that would cause conflicts when restoring the
         # build pickle
         data = self.__dict__.copy()
-        if data.has_key('distribution'):
+        if 'distribution' in data:
             del data['distribution']
-        if data.has_key('compiler'):
+        if 'compiler' in data:
             del data['compiler']
         state = {'build': data}
         for sub_command, needed in self.sub_commands:
             cmd = self.distribution.get_command_obj(sub_command)
             data = cmd.__dict__.copy()
-            if data.has_key('distribution'):
+            if 'distribution' in data:
                 del data['distribution']
-            if data.has_key('compiler'):
+            if 'compiler' in data:
                 del data['compiler']
-            if data.has_key('extensions') and data['extensions']:
+            if 'extensions' in data and data['extensions']:
                 # Convert mx_Extension instances into instance dicts;
                 # this is needed to make easy_install happy
                 extensions = data['extensions']
                 data['extensions'] = [
                     ext.__dict__.copy()
                     for ext in extensions]
-            if data.has_key('autoconf'):
+            if 'autoconf' in data:
                 del data['autoconf']
             state[sub_command] = data
         data = {'have_run': self.distribution.have_run,
@@ -3745,17 +3728,17 @@ The prebuilt archive was built for:
         state['distribution'] = data
         if 0:
             data = self.distribution.__dict__.copy()
-            if data.has_key('distribution'):
+            if 'distribution' in data:
                 del data['distribution']
-            if data.has_key('metadata'):
+            if 'metadata' in data:
                 del data['metadata']
-            if data.has_key('ext_modules'):
+            if 'ext_modules' in data:
                 del data['ext_modules']
-            if data.has_key('command_obj'):
+            if 'command_obj' in data:
                 del data['command_obj']
-            if data.has_key('cmdclass'):
+            if 'cmdclass' in data:
                 del data['cmdclass']
-            for key, value in data.items():
+            for key, value in list(data.items()):
                 if type(value) is type(self.distribution.get_url):
                     # Bound method
                     del data[key]
@@ -3784,7 +3767,7 @@ The prebuilt archive was built for:
             print ('saving build pickle: %s' % repr(state))
         pickle_file = open(self.get_build_pickle_pathname(),
                            'wb')
-        cPickle.dump(state, pickle_file)
+        pickle.dump(state, pickle_file)
         pickle_file.close()
 
     def have_build_pickle(self, pathname=None,
@@ -3823,7 +3806,7 @@ The prebuilt archive was built for:
         except IOError:
             log.info('no build data file %r found' % pathname)
             return 0
-        state = cPickle.load(pickle_file)
+        state = pickle.load(pickle_file)
         pickle_file.close()
 
         # Check whether this is a valid build file for this Python
@@ -3891,10 +3874,10 @@ The prebuilt archive was built for:
         if pathname is None:
             pathname = self.get_build_pickle_pathname()
         pickle_file = open(pathname, 'rb')
-        state = cPickle.load(pickle_file)
+        state = pickle.load(pickle_file)
         pickle_file.close()
         if _debug:
-            print 'read build pickle:'
+            print('read build pickle:')
             import pprint
             pprint.pprint(state)
         return state
@@ -3915,14 +3898,14 @@ The prebuilt archive was built for:
         
         log.info('restoring build data from a previous build run')
         distribution_data = None
-        for sub_command, data in state.items():
+        for sub_command, data in list(state.items()):
             if _debug:
-                print 'restoring build data for command %r' % sub_command
+                print('restoring build data for command %r' % sub_command)
             if sub_command == 'mxSetup':
                 self.distribution.metadata.version = data['get_version']
                 self.distribution.metadata.name = data['get_name']
             elif sub_command == 'build':
-                for key, value in data.items():
+                for key, value in list(data.items()):
                     self.__dict__[key] = value
             elif sub_command == 'distribution':
                 distribution_data = data
@@ -3932,7 +3915,7 @@ The prebuilt archive was built for:
                 # distribution.have_run entry for the command. See
                 # #1583.
                 cmd = self.distribution.get_command_obj(sub_command)
-                for key, value in data.items():
+                for key, value in list(data.items()):
                     cmd.__dict__[key] = value
                 if sub_command == 'build_ext':
                     if cmd.extensions:
@@ -3952,7 +3935,7 @@ The prebuilt archive was built for:
         # e.g. distribution.have_run. See #1583.
         if distribution_data is None:
             raise DistutilsError('missing distribution data in build pickle')
-        for key, value in distribution_data.items():
+        for key, value in list(distribution_data.items()):
             self.distribution.__dict__[key] = value
 
         # Report successful load
@@ -3985,7 +3968,7 @@ The prebuilt archive was built for:
 
     # Add new sub-commands:
     if len(build.sub_commands) > 4:
-        raise DistutilsError, 'incompatible distutils version !'
+        raise DistutilsError('incompatible distutils version !')
     sub_commands = [('build_clib',    build.has_c_libraries),
                     ('build_unixlib', has_unixlibs),
                     ('mx_autoconf',   build.has_ext_modules),
@@ -4030,11 +4013,10 @@ class mx_build_clib(CompilerSupportMixin,
             #
             sources = build_info.get('sources')
             if sources is None or \
-               type(sources) not in (types.ListType, types.TupleType):
-                raise DistutilsSetupError, \
-                      ("in 'libraries' option (library '%s'), " +
+               type(sources) not in (list, tuple):
+                raise DistutilsSetupError(("in 'libraries' option (library '%s'), " +
                        "'sources' must be present and must be " +
-                       "a list of source filenames") % lib_name
+                       "a list of source filenames") % lib_name)
             sources = list(sources)
 
             log.info("building '%s' library" % lib_name)
@@ -4119,10 +4101,10 @@ class mx_build_ext(CompilerSupportMixin,
         build_ext.finalize_options(self)
         if self.disable_build is None:
             self.disable_build = ()
-        elif type(self.disable_build) is types.StringType:
+        elif isinstance(self.disable_build, str):
             self.disable_build = [x.strip()
                                   for x in self.disable_build.split(',')]
-        if type(self.enable_build) is types.StringType:
+        if isinstance(self.enable_build, str):
             self.enable_build = [x.strip()
                                  for x in self.enable_build.split(',')]
         self.extra_output = []
@@ -4334,12 +4316,12 @@ class mx_build_ext(CompilerSupportMixin,
                              " -- omitting it" % libname)
 
         if _debug:
-            print 'Include dirs:', repr(ext.include_dirs +
-                                        compiler.include_dirs)
-            print 'Libary dirs:', repr(ext.library_dirs +
-                                       compiler.library_dirs)
-            print 'Libaries:', repr(ext.libraries)
-            print 'Macros:', repr(ext.define_macros)
+            print('Include dirs:', repr(ext.include_dirs +
+                                        compiler.include_dirs))
+            print('Libary dirs:', repr(ext.library_dirs +
+                                       compiler.library_dirs))
+            print('Libaries:', repr(ext.libraries))
+            print('Macros:', repr(ext.define_macros))
 
         # Build the extension
         successfully_built = 0
@@ -4354,7 +4336,7 @@ class mx_build_ext(CompilerSupportMixin,
             else:
                 try:
                     build_ext.build_extension(self, ext)
-                except (CCompilerError, DistutilsError), why:
+                except (CCompilerError, DistutilsError) as why:
                     if warn:
                         log.warn(
                             '*** WARNING: Building of extension "%s" '
@@ -4551,7 +4533,7 @@ class mx_build_data(Command):
             entry = data_files[i]
             copied_data_files = []
             
-            if type(entry) == types.StringType:
+            if isinstance(entry, str):
                 # Unix- to platform-convention conversion
                 entry = convert_to_platform_path(entry)
                 filenames = glob.glob(entry)
@@ -4569,7 +4551,7 @@ class mx_build_data(Command):
                     copied_data_files.append(
                         convert_to_distutils_path(filename))
                     
-            elif type(entry) == types.TupleType:
+            elif isinstance(entry, tuple):
                 origin, target = entry
                 # Unix- to platform-convention conversion
                 origin = convert_to_platform_path(origin)
@@ -4627,7 +4609,7 @@ class mx_build_data(Command):
             if not filename:
                 continue
             d[filename] = 1
-        data_files[:] = d.keys()
+        data_files[:] = list(d.keys())
 
         if _debug:
             print ('After build_data: ')
@@ -4761,8 +4743,8 @@ class mx_build_unixlib(Command):
             return 0
         try:
             rc = os.system(script)
-        except DistutilsExecError, msg:
-            raise CompileError, msg
+        except DistutilsExecError as msg:
+            raise CompileError(msg)
         return rc
     
     def run_configure(self, options=[], dir=None, configure='configure'):
@@ -4784,7 +4766,7 @@ class mx_build_unixlib(Command):
         log.info('running %s in %s' % (configure, dir or '.'))
         rc = self.run_script(cmd, options)
         if rc != 0:
-            raise CompileError, 'configure script failed'
+            raise CompileError('configure script failed')
 
     def run_make(self, targets=[], dir=None, make='make', options=[]):
 
@@ -4804,7 +4786,7 @@ class mx_build_unixlib(Command):
         log.info('running %s in %s' % (make, dir or '.'))
         rc = self.run_script(cmd, options)
         if rc != 0:
-            raise CompileError, 'make failed'
+            raise CompileError('make failed')
 
     def build_unixlib(self, unixlib):
 
@@ -4824,9 +4806,8 @@ class mx_build_unixlib(Command):
             buildtree = os.path.join(self.build_temp, sourcetree)
             libfiles = unixlib.libfiles
             if not libfiles:
-                raise DistutilsError, \
-                      'no libfiles defined for unixlib "%s"' % \
-                      unixlib.name
+                raise DistutilsError('no libfiles defined for unixlib "%s"' % \
+                      unixlib.name)
             log.info('building C lib %s in %s' % (unixlib.libname,
                                                   buildtree))
             # Prepare build
@@ -4857,8 +4838,7 @@ class mx_build_unixlib(Command):
                 sourcefile = os.path.join(self.build_temp, sourcefile)
                 destination = os.path.join(self.build_lib, destination)
                 if not os.path.exists(sourcefile):
-                    raise CompileError, \
-                          'library "%s" failed to build' % sourcefile
+                    raise CompileError('library "%s" failed to build' % sourcefile)
                 self.mkpath(destination)
                 self.copy_file(sourcefile, destination)
 
@@ -5025,7 +5005,7 @@ class mx_install_data(install_data):
             installobj = self.distribution.get_command_obj('install')
             self.install_dir = installobj.install_data
         if _debug:
-            print 'Installing data files to %s' % self.install_dir
+            print('Installing data files to %s' % self.install_dir)
         self.set_undefined_options('install',
                                    ('build_lib', 'build_lib'),
                                    )
@@ -5037,10 +5017,10 @@ class mx_install_data(install_data):
             self.mkpath(self.install_dir)
         data_files = self.get_inputs()
         if _debug:
-            print 'install_data: data_files=%r' % self.data_files
+            print('install_data: data_files=%r' % self.data_files)
         for entry in data_files:
 
-            if type(entry) == types.StringType:
+            if isinstance(entry, str):
                 # Unix- to platform-convention conversion
                 entry = convert_to_platform_path(entry)
                 # Names in data_files are now relative to the build
@@ -5145,19 +5125,18 @@ class mx_uninstall(Command):
         filenames = install.get_outputs()
         for filename in filenames:
             if not os.path.isabs(filename):
-                raise DistutilsError,\
-                      'filename %s from .get_output() not absolute' % \
-                      filename
+                raise DistutilsError('filename %s from .get_output() not absolute' % \
+                      filename)
 
             if os.path.isfile(filename):
                 log.info('removing %s' % filename)
                 if not self.dry_run:
                     try:
                         os.remove(filename)
-                    except OSError, details:
+                    except OSError as details:
                         log.warn('could not remove file: %s' % details)
                     dir = os.path.split(filename)[0]
-                    if not dirs.has_key(dir):
+                    if dir not in dirs:
                         dirs[dir] = 1
                     if os.path.splitext(filename)[1] == '.py':
                         # Remove byte-code files as well
@@ -5171,7 +5150,7 @@ class mx_uninstall(Command):
                             pass
 
             elif os.path.isdir(filename):
-                if not dirs.has_key(dir):
+                if dir not in dirs:
                     dirs[filename] = 1
 
             elif not os.path.splitext(filename)[1] in ('.pyo', '.pyc'):
@@ -5180,7 +5159,7 @@ class mx_uninstall(Command):
 
         # Remove the installation directories
         log.info('removing directories')
-        dirs = dirs.keys()
+        dirs = list(dirs.keys())
         dirs.sort(); dirs.reverse() # sort descending
         for dir in dirs:
             # Don't remove directories which are listed on sys.path
@@ -5197,7 +5176,7 @@ class mx_uninstall(Command):
             if not self.dry_run:
                 try:
                     os.rmdir(dir)
-                except OSError, details:
+                except OSError as details:
                     log.warn('could not remove directory: %s' % details)
 
 #
@@ -5266,7 +5245,7 @@ class mx_clean(clean):
                 log.info('removing %r' % build_pickle)
                 try:
                     os.remove(build_pickle)
-                except OSError, details:
+                except OSError as details:
                     log.warn('could not remove build pickle %s: %s' %
                              (build_pickle, details))
 
@@ -5591,7 +5570,7 @@ class WebInstaller:
         try:
             url = find_matching_package(package_data,
                                         required_tags=WEB_INSTALLER_DIST_FORMS)
-        except KeyError, reason:
+        except KeyError as reason:
             log.error('web installer could not find a suitable '
                       'download package')
             raise DistutilsError(
@@ -5628,7 +5607,7 @@ class WebInstaller:
         """
         try:
             install_web_package(url, self.dir)
-        except urllib2.URLError, reason:
+        except urllib2.URLError as reason:
             log.error('web installer could not download the package %s: %s' %
                       (url, reason))
             raise DistutilsError(
@@ -5736,7 +5715,7 @@ class CryptoWebInstaller(WebInstaller):
                 'hit enter to disable the timeout ...)\n')
             try:
                 data = read_console(timeout=5).strip()
-            except (TimeoutError, IOError, NotSupportedError), reason:
+            except (TimeoutError, IOError, NotSupportedError) as reason:
                 raise DistutilsError(
                     'Crypto confirmation timed out or did not succeed.\n\n'
                     '>>> Please try setting the OS environment variable\n'
@@ -5853,8 +5832,7 @@ class mx_bdist_rpm(bdist_rpm):
                                      self.distutils_build_options,
                                      buildcmd[inspos:])
         else:
-            raise DistutilsError, \
-                  'could not insert distutils command in RPM build command'
+            raise DistutilsError('could not insert distutils command in RPM build command')
         
         # Insert into install command
         i = l.index('%install')
@@ -5866,8 +5844,7 @@ class mx_bdist_rpm(bdist_rpm):
                                         installcmd[inspos:],
                                         self.distutils_install_options)
         else:
-            raise DistutilsError, \
-                  'could not insert distutils command in RPM install command'
+            raise DistutilsError('could not insert distutils command in RPM install command')
 
         return l
     
@@ -6089,14 +6066,14 @@ class mx_bdist_prebuilt(mx_sdist):
         # Prepare a list of source files needed for install_data
         data_source_files = []
         for entry in self.distribution.data_files:
-            if type(entry) is types.TupleType:
+            if type(entry) is tuple:
                 (source_file, dest_file) = entry
             else:
                 source_file = entry
             source_file = convert_to_platform_path(source_file)
             data_source_files.append(source_file)
         if _debug:
-            print 'found these data source files: %r' % data_source_files
+            print('found these data source files: %r' % data_source_files)
 
         # Remove most subdirs from the MANIFEST file list
         files = []
@@ -6115,7 +6092,7 @@ class mx_bdist_prebuilt(mx_sdist):
                     break
             if skip_path:
                 if _debug:
-                    print '  skipping excluded file: %s' % path
+                    print('  skipping excluded file: %s' % path)
                 continue
 
             # Now filter the remaining files; we'll convert the path
@@ -6127,21 +6104,21 @@ class mx_bdist_prebuilt(mx_sdist):
                 if path_components[0].lower().startswith('doc'):
                     # Top-level documentation directories are always included
                     if _debug:
-                        print '  found documentation file: %s' % path
+                        print('  found documentation file: %s' % path)
                 elif (self.include_data_source_files and
                       path in data_source_files):
                     # Data source files can optionally be included as
                     # well; these will already be in the build area
                     # due to mx_build_data
                     if _debug:
-                        print '  found data source file: %s' % path
+                        print('  found data source file: %s' % path)
                 else:
                     # Skip all other files in subdirectories
                     if _debug:
-                        print '  skipping file: %s' % path
+                        print('  skipping file: %s' % path)
                     continue
             elif _debug:
-                print '  found top-level file: %s' % path
+                print('  found top-level file: %s' % path)
             log.info('adding %s' % path)
             files.append(path)
 
@@ -6152,7 +6129,7 @@ class mx_bdist_prebuilt(mx_sdist):
         self.filelist.files.extend(build.get_outputs())
 
         if _debug:
-            print 'pre-built files:', repr(self.filelist.files)
+            print('pre-built files:', repr(self.filelist.files))
                 
     def run(self):
 
@@ -6330,7 +6307,7 @@ class mx_bdist_egg(bdist_dumb):
                     top_level_modules[namespace_package] = 'namespace'
             self.write_egg_info_file(egg_info_dir,
                                      'top_level.txt',
-                                     top_level_modules.keys())
+                                     list(top_level_modules.keys()))
                 
             # add dependency_links.txt
             self.write_egg_info_file(egg_info_dir,
@@ -6946,13 +6923,13 @@ def run_setup(configurations):
         kws.update(vars(configuration))
 
     # Type and name checking
-    for name, value in kws.items():
+    for name, value in list(kws.items()):
         if (name[:1] == '_' or
             name in UNSUPPORTED_SETUP_KEYWORDS):
             del kws[name]
             continue
         if not isinstance(value, ALLOWED_SETUP_TYPES):
-            if isinstance(value, types.UnicodeType):
+            if isinstance(value, str):
                 # Convert Unicode values to UTF-8 encoded strings
                 kws[name] = value.encode('utf-8')
             else:
@@ -7015,5 +6992,5 @@ def run_setup(configurations):
     # Invoke distutils setup
     if _debug > 1:
         print ('calling setup() with kws %r' % kws)
-    apply(setup, (), kws)
+    setup(*(), **kws)
 
