@@ -202,12 +202,17 @@ distutils.util.change_root = change_root
 ### Setuptools support
 
 # Let setuptools monkey-patch distutils, if a command-line option
-# --use-setuptools is given and enable the setuptools work-arounds
-# if it was already loaded (see ticket #547).
+# --use-setuptools is given or the environment variable
+# EGENIX_MXSETUP_USE_SETUPTOOLS is set, and enable the setuptools
+# work-arounds if it was already loaded (see ticket #547).
 if module_loaded('setuptools'):
     import setuptools
-elif '--use-setuptools' in sys.argv:
-    sys.argv.remove('--use-setuptools')
+elif ('--use-setuptools' in sys.argv or
+      os.getenv('EGENIX_MXSETUP_USE_SETUPTOOLS')):
+    try:
+        sys.argv.remove('--use-setuptools')
+    except ValueError:
+        pass
     try:
         import setuptools
         print('running mxSetup.py with setuptools patched distutils')
