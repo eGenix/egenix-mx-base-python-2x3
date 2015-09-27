@@ -54,10 +54,6 @@ def run_tests():
     # DateTime op DateTimeDelta
     assert t1 != td1
     assert t2 != td1
-    assert t1 < td1
-    assert t2 < td1
-    assert not (t1 > td1)
-    assert not (t2 > td1)
 
     # DateTime op floats
     assert t1 == t1_ticks
@@ -259,10 +255,6 @@ def run_tests():
     # DateTimeDelta op DateTime
     assert td1 != t1
     assert td2 != t1
-    assert td1 > t1
-    assert td2 > t1
-    assert not (td1 < t1)
-    assert not (td2 < t1)
 
     # DateTimeDelta op floats
     assert td1 == td1_seconds
@@ -520,4 +512,4 @@ run_tests()
 if '--memory-leaks' in sys.argv:
     while 1:
         run_tests()
-    
+
