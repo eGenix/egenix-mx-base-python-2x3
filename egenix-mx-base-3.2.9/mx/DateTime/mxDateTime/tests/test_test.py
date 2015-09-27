@@ -72,7 +72,7 @@ def test_constructors():
     ## Test DateTimeFromAbsDateTime()
 
     # wintertime
-    t = winter = DateTimeFromAbsDateTime(729368,55931.522913)
+    t = DateTimeFromAbsDateTime(729368,55931.522913)
     print t
     print repr(t)
     assert str(t) == '1997-12-10 15:32:11.52'
@@ -86,7 +86,7 @@ def test_constructors():
     print
 
     # summertime
-    t = summer = DateTimeFromAbsDateTime(729200,55931.522913)
+    t = DateTimeFromAbsDateTime(729200,55931.522913)
     print t
     print repr(t)
     assert str(t) == '1997-06-25 15:32:11.52'
@@ -557,6 +557,8 @@ def test_julian_calendar():
 
     # ticks and dst
     print 'Converting ticks and DST handling.'
+    summer = DateTimeFromAbsDateTime(729200,55931.522913)
+    winter = DateTimeFromAbsDateTime(729368,55931.522913)
     try:
         summer.ticks(0,0)
         winter.ticks(0,0)
