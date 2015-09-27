@@ -9,3 +9,4 @@ __pycache__
 *.so
 *.pyd
 *.dll
+*.egg-info

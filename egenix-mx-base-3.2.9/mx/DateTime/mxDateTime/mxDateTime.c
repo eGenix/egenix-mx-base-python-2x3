@@ -437,7 +437,7 @@ PyObject *insexc(PyObject *moddict,
     if (v == NULL)
 	modname = NULL;
     else
-	modname = PyString_AsString(v);
+	modname = mxPyText_AsString(v);
     if (modname == NULL) {
 	PyErr_Clear();
 	modname = MXDATETIME_MODULE;
@@ -482,7 +482,7 @@ void insstr(PyObject *dict,
 	    char *name,
 	    char *value)
 {
-    PyObject *v = PyString_FromString(value);
+    PyObject *v = mxPyText_FromString(value);
     PyDict_SetItemString(dict, name, v);
     Py_XDECREF(v);
 }
@@ -2331,12 +2331,12 @@ PyObject *mxDateTime_TimezoneString(mxDateTimeObject *datetime)
     char tz[255];
 
     if (datetime->calendar != MXDATETIME_GREGORIAN_CALENDAR)
-	return PyString_FromString("???");
+	return mxPyText_FromString("???");
     if ((long)((int)datetime->year) != datetime->year)
-	return PyString_FromString("???");
+	return mxPyText_FromString("???");
 
 #ifndef HAVE_STRFTIME
-    return PyString_FromString("???");
+    return mxPyText_FromString("???");
 #else
     memset(&tm,0,sizeof(tm));
     tm.tm_hour = (int)datetime->hour;
@@ -2349,9 +2349,9 @@ PyObject *mxDateTime_TimezoneString(mxDateTimeObject *datetime)
     tm.tm_isdst = mxDateTime_DST(datetime);
     ticks = mktime(&tm);
     if (ticks == (time_t)-1 && tm.tm_wday == -1)
-	return PyString_FromString("???");
+	return mxPyText_FromString("???");
     strftime(tz,sizeof(tm),"%Z",&tm);
-    return PyString_FromString(tz);
+    return mxPyText_FromString(tz);
 #endif
 }
 
@@ -2464,7 +2464,7 @@ PyObject *mxDateTime_DateString(mxDateTimeObject *self)
 	sprintf(buffer,"-%04li-%02i-%02i",
 		(long)-self->year,(int)self->month,(int)self->day);
 
-    return PyString_FromString(buffer);
+    return mxPyText_FromString(buffer);
 }
 
 /* Returns a string indicating the time in ISO format. */
@@ -2479,7 +2479,7 @@ PyObject *mxDateTime_TimeString(mxDateTimeObject *self)
     sprintf(buffer,"%02i:%02i:%05.2f",
 	    (int)self->hour,(int)self->minute,(float)second);
 
-    return PyString_FromString(buffer);
+    return mxPyText_FromString(buffer);
 }
 
 #ifdef MS_WIN32
@@ -2620,7 +2620,7 @@ Py_C_Function( mxDateTime_strftime,
 	else
 	    break;
     }
-    v = PyString_FromStringAndSize(output,len_output);
+    v = mxPyText_FromStringAndSize(output,len_output);
     if (v == NULL)
 	goto onError;
     free(output);
@@ -3097,7 +3097,7 @@ PyObject *mxDateTime_Str(PyObject *obj)
     char s[50];
 
     mxDateTime_AsString(self,s,sizeof(s));
-    return PyString_FromString(s);
+    return mxPyText_FromString(s);
 }
 
 static
@@ -3110,7 +3110,7 @@ PyObject *mxDateTime_Repr(PyObject *obj)
     mxDateTime_AsString(self, s, sizeof(s));
     sprintf(t,"<%s object for '%s' at %lx>", 
 	    self->ob_type->tp_name, s, (long)self);
-    return PyString_FromString(t);
+    return mxPyText_FromString(t);
 }
 
 #ifdef WANT_SUBCLASSABLE_TYPES
@@ -4443,7 +4443,7 @@ Py_C_Function( mxDateTimeDelta_strftime,
 	else
 	    break;
     }
-    v = PyString_FromStringAndSize(output,len_output);
+    v = mxPyText_FromStringAndSize(output,len_output);
     if (v == NULL)
 	goto onError;
     free(output);
@@ -4673,7 +4673,7 @@ PyObject *mxDateTimeDelta_Str(PyObject *obj)
     char s[50];
 
     mxDateTimeDelta_AsString(self,s,sizeof(s));
-    return PyString_FromString(s);
+    return mxPyText_FromString(s);
 }
 
 static
@@ -4686,7 +4686,7 @@ PyObject *mxDateTimeDelta_Repr(PyObject *obj)
     mxDateTimeDelta_AsString(self, s, sizeof(s));
     sprintf(t,"<%s object for '%s' at %lx>", 
 	    self->ob_type->tp_name, s, (long)self);
-    return PyString_FromString(t);
+    return mxPyText_FromString(t);
 }
 
 static
@@ -5980,7 +5980,7 @@ MX_EXPORT(void)
     moddict = PyModule_GetDict(module);
     if (moddict == NULL)
 	goto onError;
-    insobj(moddict,"__version__",PyString_FromString(MXDATETIME_VERSION));
+    insobj(moddict,"__version__",mxPyText_FromString(MXDATETIME_VERSION));
     insint(moddict,"POSIX",mxDateTime_POSIXConform);
 #ifdef USE_FAST_GETCURRENTTIME
     /* Clock resolution */
@@ -5990,17 +5990,17 @@ MX_EXPORT(void)
 #endif
 
     /* Calendar string constants */
-    if (!(mxDateTime_GregorianCalendar = PyString_FromString(
+    if (!(mxDateTime_GregorianCalendar = mxPyText_FromString(
 	      MXDATETIME_GREGORIAN_CALENDAR_STRING)))
 	goto onError;
-    PyString_InternInPlace(&mxDateTime_GregorianCalendar);
+    mxPyText_InternInPlace(&mxDateTime_GregorianCalendar);
     PyDict_SetItemString(moddict,
 			 MXDATETIME_GREGORIAN_CALENDAR_STRING,
 			 mxDateTime_GregorianCalendar);
-    if (!(mxDateTime_JulianCalendar = PyString_FromString(
+    if (!(mxDateTime_JulianCalendar = mxPyText_FromString(
 	      MXDATETIME_JULIAN_CALENDAR_STRING)))
 	goto onError;
-    PyString_InternInPlace(&mxDateTime_JulianCalendar);
+    mxPyText_InternInPlace(&mxDateTime_JulianCalendar);
     PyDict_SetItemString(moddict,
 			 MXDATETIME_JULIAN_CALENDAR_STRING,
 			 mxDateTime_JulianCalendar);
