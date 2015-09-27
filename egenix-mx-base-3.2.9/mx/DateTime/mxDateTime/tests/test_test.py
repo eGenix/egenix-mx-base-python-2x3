@@ -16,6 +16,16 @@ def main():
         sys.exit(1)
 
     test_constructors()
+    test_string_format()
+    test_number_protocol()
+    test_deltas()
+    test_utc_and_local_time()
+    test_com_date_rounding()
+    test_julian_calendar()
+    test_bug_707()
+    test_relativedatetime()
+    test_pydatetime_integration()
+    test_slot_ops()
 
 
 def test_constructors():
