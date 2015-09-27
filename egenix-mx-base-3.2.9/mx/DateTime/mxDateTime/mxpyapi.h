@@ -31,43 +31,127 @@ extern "C" {
 
 /*
   ----------------------------------------------------------------
-  Python 3.0
+  Python 3.3
   ----------------------------------------------------------------
 */
 
-#if PY_VERSION_HEX >= 0x03000000
+#if PY_VERSION_HEX >= 0x03030000
 
-/* XXX TODO: Check need for mapings*/
+/* XXX TODO: Check need for all these mappings*/
+
 #define PyInt_AsLong                PyLong_AsLong
 #define PyInt_Check                 PyLong_Check
 #define PyInt_FromLong              PyLong_FromLong
 #define PyInt_AS_LONG               PyLong_AS_LONG
 #define PyInt_FromSsize_t           PyLong_FromSsize_t
 
-#undef PyUnicode_AsString
-#undef PyUnicode_AS_STRING
-#undef PyUnicode_Check
-#undef PyUnicode_FromStringAndSize
-#undef PyUnicode_FromString
-#undef PyUnicode_FromFormat
-#undef PyUnicode_DecodeFSDefault
+/* "Text" APIs: Return Unicode in Python 3, strings in Python 2 */
+#define mxPyTextObject               PyUnicodeObject
+#define mxPyText_AS_STRING           mxPyText_AsString
+#define mxPyText_GET_SIZE            mxPyText_Size
+#define mxPyText_Check               PyUnicode_Check
+#define mxPyText_FromStringAndSize   PyUnicode_FromStringAndSize
+#define mxPyText_FromString          PyUnicode_FromString
+#define _mxPyText_Resize             _PyUnicode_Resize
+#define mxPyText_InternInPlace       PyUnicode_InternInPlace
 
-#define PyUnicode_AsString          PyString_AsString
-#define PyUnicode_AS_STRING         PyString_AS_STRING
-#define PyUnicode_Check             PyString_Check
-#define PyUnicode_FromStringAndSize PyString_FromStringAndSize
-#define PyUnicode_FromString        PyString_FromString
-#define PyUnicode_FromFormat        PyString_FromFormat
-#define PyUnicode_DecodeFSDefault   PyString_FromString
+/* Return the UTF-8 char* buffer to the text Unicode object.
 
+   Note: The buffer can include embedded NUL characters. Use mxPyText_Size()
+   to check for this.
+
+ */
+
+char *mxPyText_AsString(PyObject *text)
+{
+    Py_ssize_t size;
+    char *utf8;
+
+    utf8 = PyUnicode_AsUTF8AndSize(text, &size);
+    /* Could add a check for embedded NULs here... */
+    return utf8;
+}
+
+/* Return the length of the UTF-8 version of the text Unicode object.
+
+   Returns -1 in case of an error.
+
+*/
+
+Py_ssize_t mxPyText_Size(PyObject *text)
+{
+    Py_ssize_t size;
+    char *utf8;
+
+    utf8 = PyUnicode_AsUTF8AndSize(text, &size);
+    if (!utf8)
+	return -1;
+    return size;
+}
+
+/* Return a UTF-8 char* buffer and its size for the text Unicode object.
+
+   Returns -1 in case of an error, 0 otherwise.
+
+ */
+
+int mxPyText_AsStringAndSize(PyObject *text, char **utf8, Py_ssize_t *size)
+{
+    char *buffer;
+
+    buffer = PyUnicode_AsUTF8AndSize(text, size);
+    if (!buffer)
+	return -1;
+    if (utf8)
+	*utf8 = buffer;
+    return 0;
+}
+
+#endif
+
+/*
+  ----------------------------------------------------------------
+  Python 3.0 - 3.2: not supported
+  ----------------------------------------------------------------
+*/
+
+#if (PY_VERSION_HEX >= 0x03000000) && (PY_VERSION_HEX < 0x03030000)
+
+#error "Python 3.0, 3.1 and 3.2 are *not* supported"
+
+#endif
+
+/*
+  ----------------------------------------------------------------
+  Python 2.x
+  ----------------------------------------------------------------
+*/
+
+#if PY_VERSION_HEX < 0x03000000
+
+/* APIs for forcing bytes usage; in most cases, you will want to use the
+   mxPyText_* APIs below. */
 #define PyBytesObject               PyStringObject
 #define PyBytes_AsString            PyString_AsString
 #define PyBytes_AS_STRING           PyString_AS_STRING
+#define PyBytes_GET_SIZE            PyString_GET_SIZE
 #define PyBytes_Check               PyString_Check
 #define PyBytes_AsStringAndSize     PyString_AsStringAndSize
 #define PyBytes_FromStringAndSize   PyString_FromStringAndSize
 #define PyBytes_FromString          PyString_FromString
 #define _PyBytes_Resize             _PyString_Resize
+
+/* "Text" APIs: Return Unicode in Python 3, strings in Python 2 */
+#define mxPyTextObject               PyStringObject
+#define mxPyText_AsString            PyString_AsString
+#define mxPyText_AS_STRING           PyString_AS_STRING
+#define mxPyText_GET_SIZE            PyStyring_GET_SIZE
+#define mxPyText_Check               PyString_Check
+#define mxPyText_AsStringAndSize     PyString_AsStringAndSize
+#define mxPyText_FromStringAndSize   PyString_FromStringAndSize
+#define mxPyText_FromString          PyString_FromString
+#define _mxPyText_Resize             _PyString_Resize
+#define mxPyText_InternInPlace       PyString_InternInPlace
 
 #endif
 
@@ -136,7 +220,7 @@ extern "C" {
 #else
 
 /* Python 2.5 introduced a new type for index integers which is not
-   available in earlier versions. 
+   available in earlier versions.
 
    Unfortunately, the new type has 64 bits on 64-bit architectures
    like AMD64, whereas integers still have 32 bits, which causes
@@ -229,7 +313,7 @@ static PyObject *
 PyObject_Unicode(PyObject *v)
 {
 	PyObject *res;
-	
+
 	if (v == NULL)
 		res = PyString_FromString("<NULL>");
 	else if (PyUnicode_Check(v)) {
@@ -503,7 +587,7 @@ int PyObject_AsWriteBuffer(PyObject *obj,
 #if PY_VERSION_HEX <= 0x010502A2
 
 extern long PyOS_strtol Py_PROTO((const char *, char **, int));
-        
+
 #endif /* Python Version <= 1.5.2a2 */
 
 /*

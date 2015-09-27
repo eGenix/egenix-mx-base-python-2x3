@@ -219,7 +219,7 @@ static void mx_Py_PRINT_REFCOUNT(PyObject *v,
 # define Py_PRINT_REPR(message, obj)				\
     if (Py_DebugFlag) {						\
         PyObject *_debug_repr = PyObject_Repr(obj);		\
-        mxDebugPrintf(message, PyString_AsString(_debug_repr));	\
+        mxDebugPrintf(message, mxPyText_AsString(_debug_repr));	\
 	Py_XDECREF(_debug_repr);				\
     }
 
@@ -451,7 +451,7 @@ static void mx_Py_PRINT_REFCOUNT(PyObject *v,
 
 /* Dito for string objects */
 #define Py_CheckStringSlice(textobj,start,stop) \
-        Py_CheckSequenceSlice(PyString_GET_SIZE(textobj),start,stop)
+        Py_CheckSequenceSlice(mxPyText_GET_SIZE(textobj),start,stop)
 
 /* For b/w compatibility */
 #define Py_CheckSlice(textobj,start,stop) \
@@ -567,13 +567,13 @@ static void mx_Py_PRINT_REFCOUNT(PyObject *v,
     /* Try to format a more informative error message using the	\
        original error */					\
     if (str_type && str_value &&				\
-	PyString_Check(str_type) && PyString_Check(str_value))	\
+	mxPyText_Check(str_type) && mxPyText_Check(str_value))	\
 	PyErr_Format(						\
 		PyExc_ImportError,				\
 		"initialization of module "modname" failed "	\
 		"(%s:%s)",					\
-		PyString_AS_STRING(str_type),			\
-		PyString_AS_STRING(str_value));			\
+		mxPyText_AS_STRING(str_type),			\
+		mxPyText_AS_STRING(str_value));			\
     else							\
 	PyErr_SetString(					\
 		PyExc_ImportError,				\
