@@ -540,7 +540,7 @@ static void mx_Py_PRINT_REFCOUNT(PyObject *v,
 
 #define PyType_Init(x)						\
 {								\
-    Py_TYPE(x) = &PyType_Type;					\
+    Py_TYPE(&x) = &PyType_Type;					\
     Py_Assert(x.tp_basicsize >= (int)sizeof(PyObject),	        \
 	      PyExc_SystemError,				\
 	      "Internal error: tp_basicsize of "#x" too small");\
