@@ -6,3 +6,6 @@ __pycache__
 *~
 *.bak
 .coverage
+*.so
+*.pyd
+*.dll
