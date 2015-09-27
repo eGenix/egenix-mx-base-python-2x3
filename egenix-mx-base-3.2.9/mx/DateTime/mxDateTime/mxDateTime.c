@@ -124,22 +124,22 @@
 # define mx_PyDate_Check(op)						\
     (mxDateTime_PyDateTimeAPI_Initialized ?							\
          PyDate_Check((op)) :						\
-         Py_StringsCompareEqual((op)->ob_type->tp_name, "datetime.date"))
+         Py_StringsCompareEqual(Py_TYPE(op)->tp_name, "datetime.date"))
 
 # define mx_PyDateTime_Check(op)					\
     (mxDateTime_PyDateTimeAPI_Initialized ?							\
          PyDateTime_Check((op)) :					\
-         Py_StringsCompareEqual((op)->ob_type->tp_name, "datetime.datetime"))
+         Py_StringsCompareEqual(Py_TYPE(op)->tp_name, "datetime.datetime"))
 
 # define mx_PyTime_Check(op)						\
     (mxDateTime_PyDateTimeAPI_Initialized ?							\
          PyTime_Check((op)) :						\
-         Py_StringsCompareEqual((op)->ob_type->tp_name, "datetime.time"))
+         Py_StringsCompareEqual(Py_TYPE(op)->tp_name, "datetime.time"))
 
 # define mx_PyDelta_Check(op)						\
     (mxDateTime_PyDateTimeAPI_Initialized ?							\
          PyDelta_Check((op)) :						\
-         Py_StringsCompareEqual((op)->ob_type->tp_name, "datetime.timedelta"))
+         Py_StringsCompareEqual(Py_TYPE(op)->tp_name, "datetime.timedelta"))
 
 /* datetime.h doesn't provide a macro for this... */
 # define mx_PyDeltaInSeconds(x)					  \
@@ -388,30 +388,17 @@ PyObject *mxDateTimeDelta_FromSeconds(double seconds);
 
 #ifndef WANT_SUBCLASSABLE_TYPES
 
-#define _mxDateTime_Check(v) \
-        (((mxDateTimeObject *)(v))->ob_type == &mxDateTime_Type)
-
-#define _mxDateTimeDelta_Check(v) \
-        (((mxDateTimeDeltaObject *)(v))->ob_type == \
-	 &mxDateTimeDelta_Type)
-
+#define _mxDateTime_Check(v) (Py_TYPE(v) == &mxDateTime_Type)
+#define _mxDateTimeDelta_Check(v) (Py_TYPE(v) == &mxDateTimeDelta_Type)
 #define _mxDateTime_CheckExact(v) _mxDateTime_Check(v)
 #define _mxDateTimeDelta_CheckExact(v) _mxDateTimeDelta_Check(v)
 
 #else
 
-#define _mxDateTime_Check(v) \
-        PyObject_TypeCheck(v, &mxDateTime_Type)
-
-#define _mxDateTimeDelta_Check(v) \
-        PyObject_TypeCheck(v, &mxDateTimeDelta_Type)
-
-#define _mxDateTime_CheckExact(v) \
-        (((mxDateTimeObject *)(v))->ob_type == &mxDateTime_Type)
-
-#define _mxDateTimeDelta_CheckExact(v) \
-        (((mxDateTimeDeltaObject *)(v))->ob_type == \
-	 &mxDateTimeDelta_Type)
+#define _mxDateTime_Check(v) PyObject_TypeCheck(v, &mxDateTime_Type)
+#define _mxDateTimeDelta_Check(v) PyObject_TypeCheck(v, &mxDateTimeDelta_Type)
+#define _mxDateTime_CheckExact(v) (Py_TYPE(v) == &mxDateTime_Type)
+#define _mxDateTimeDelta_CheckExact(v) (Py_TYPE(v) == &mxDateTimeDelta_Type)
 
 #endif
 
@@ -539,7 +526,7 @@ mxDateTimeObject *mxDateTime_New(void)
     if (mxDateTime_FreeList) {
 	datetime = mxDateTime_FreeList;
 	mxDateTime_FreeList = *(mxDateTimeObject **)mxDateTime_FreeList;
-	datetime->ob_type = &mxDateTime_Type;
+	Py_TYPE(datetime) = &mxDateTime_Type;
 	_Py_NewReference((PyObject *)datetime);
     }
     else
@@ -576,7 +563,7 @@ void mxDateTime_Free(mxDateTimeObject *datetime)
 static
 void mxDateTime_Deallocate(mxDateTimeObject *datetime)
 {
-    datetime->ob_type->tp_free((PyObject *)datetime);
+    Py_TYPE(datetime)->tp_free((PyObject *)datetime);
 }
 #endif
 
@@ -3109,7 +3096,7 @@ PyObject *mxDateTime_Repr(PyObject *obj)
 
     mxDateTime_AsString(self, s, sizeof(s));
     sprintf(t,"<%s object for '%s' at %lx>", 
-	    self->ob_type->tp_name, s, (long)self);
+	    Py_TYPE(self)->tp_name, s, (long)self);
     return mxPyText_FromString(t);
 }
 
@@ -3433,8 +3420,8 @@ int mxDateTime_Compare(PyObject *left,
 
     DPRINTF("mxDateTime_Compare: "
 	    "%s op %s\n",
-	    left->ob_type->tp_name,
-	    right->ob_type->tp_name);
+	    Py_TYPE(left)->tp_name,
+	    Py_TYPE(right)->tp_name);
 
     if (self == other)
 	return 0;
@@ -3465,8 +3452,8 @@ PyObject *mxDateTime_RichCompare(PyObject *left,
 
     DPRINTF("mxDateTime_RichCompare: "
 	    "%s op %s (op=%i)\n",
-	    left->ob_type->tp_name,
-	    right->ob_type->tp_name,
+	    Py_TYPE(left)->tp_name,
+	    Py_TYPE(right)->tp_name,
 	    op);
 
     /* Same type comparison */
@@ -3604,8 +3591,8 @@ PyObject *mxDateTime_Add(PyObject *left,
     double abstime_offset;
 
     DPRINTF("mxDateTime_Add: %s + %s\n",
-	    left->ob_type->tp_name,
-	    right->ob_type->tp_name);
+	    Py_TYPE(left)->tp_name,
+	    Py_TYPE(right)->tp_name);
 
     /* Make sure that we only have to deal with DateTime + <other
        type> */
@@ -3685,8 +3672,8 @@ PyObject *mxDateTime_Sub(PyObject *left,
     mxDateTimeObject *other = (mxDateTimeObject *)right;
 
     DPRINTF("mxDateTime_Sub: %s - %s\n",
-	    left->ob_type->tp_name,
-	    right->ob_type->tp_name);
+	    Py_TYPE(left)->tp_name,
+	    Py_TYPE(right)->tp_name);
 
     if (_mxDateTime_Check(left)) {
 	/* DateTime - <other type> */
@@ -4074,7 +4061,7 @@ mxDateTimeDeltaObject *mxDateTimeDelta_New(void)
 	delta = mxDateTimeDelta_FreeList;
 	mxDateTimeDelta_FreeList = \
 	    *(mxDateTimeDeltaObject **)mxDateTimeDelta_FreeList;
-	delta->ob_type = &mxDateTimeDelta_Type;
+	Py_TYPE(delta) = &mxDateTimeDelta_Type;
 	_Py_NewReference((PyObject *)delta);
     }
     else
@@ -4685,7 +4672,7 @@ PyObject *mxDateTimeDelta_Repr(PyObject *obj)
 
     mxDateTimeDelta_AsString(self, s, sizeof(s));
     sprintf(t,"<%s object for '%s' at %lx>", 
-	    self->ob_type->tp_name, s, (long)self);
+	    Py_TYPE(self)->tp_name, s, (long)self);
     return mxPyText_FromString(t);
 }
 
@@ -4785,8 +4772,8 @@ int mxDateTimeDelta_Compare(PyObject *left,
 
     DPRINTF("mxDateTimeDelta_Compare: "
 	    "%s op %s\n",
-	    left->ob_type->tp_name,
-	    right->ob_type->tp_name);
+	    Py_TYPE(left)->tp_name,
+	    Py_TYPE(right)->tp_name);
 
     if (self == other)
 	return 0;
@@ -4817,8 +4804,8 @@ PyObject *mxDateTimeDelta_RichCompare(PyObject *left,
 
     DPRINTF("mxDateTimeDelta_RichCompare: "
 	    "%s op %s (op=%i)\n",
-	    left->ob_type->tp_name,
-	    right->ob_type->tp_name,
+	    Py_TYPE(left)->tp_name,
+	    Py_TYPE(right)->tp_name,
 	    op);
 
     /* Same type comparison */
@@ -4977,8 +4964,8 @@ PyObject *mxDateTimeDelta_Add(PyObject *left,
     mxDateTimeDeltaObject *other = (mxDateTimeDeltaObject *)right;
 
     DPRINTF("mxDateTimeDelta_Add: %s + %s\n",
-	    left->ob_type->tp_name,
-	    right->ob_type->tp_name);
+	    Py_TYPE(left)->tp_name,
+	    Py_TYPE(right)->tp_name);
 
     /* Make sure that we only have to deal with DateTimeDelta + <other
        type> */
@@ -5061,8 +5048,8 @@ PyObject *mxDateTimeDelta_Sub(PyObject *left,
     mxDateTimeDeltaObject *other = (mxDateTimeDeltaObject *)right;
 
     DPRINTF("mxDateTimeDelta_Sub: %s - %s\n",
-	    left->ob_type->tp_name,
-	    right->ob_type->tp_name);
+	    Py_TYPE(left)->tp_name,
+	    Py_TYPE(right)->tp_name);
 
     if (_mxDateTimeDelta_Check(left)) {
 	/* DateTimeDelta - <other type> */
@@ -5193,8 +5180,8 @@ PyObject *mxDateTimeDelta_Multiply(PyObject *left,
     mxDateTimeDeltaObject *self = (mxDateTimeDeltaObject *)left;
 
     DPRINTF("mxDateTimeDelta_Multiply: %s * %s\n",
-	    left->ob_type->tp_name,
-	    right->ob_type->tp_name);
+	    Py_TYPE(left)->tp_name,
+	    Py_TYPE(right)->tp_name);
 
     if (_mxDateTimeDelta_Check(left)) {
 	/* DateTimeDelta * <other type> */
@@ -5257,8 +5244,8 @@ PyObject *mxDateTimeDelta_Divide(PyObject *left,
     double value;
 
     DPRINTF("mxDateTimeDelta_Divide: %s / %s\n",
-	    left->ob_type->tp_name,
-	    right->ob_type->tp_name);
+	    Py_TYPE(left)->tp_name,
+	    Py_TYPE(right)->tp_name);
 
     if (_mxDateTimeDelta_Check(left)) {
 	/* DateTimeDelta / <other type> */

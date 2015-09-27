@@ -131,7 +131,7 @@ static void mx_Py_INCREF(PyObject *v,
 	Py_INCREF(v);;
 	mxDebugPrintf("[%s:%5i] Py_XINCREF( %-8s at 0x%lx [%s]); "
 		      "new refcount = %i\n",
-		      filename,lineno,name,(long)v,v->ob_type->tp_name,
+		      filename,lineno,name,(long)v,Py_TYPE(v)->tp_name,
 		      v->ob_refcnt);
     }
 }
@@ -154,11 +154,11 @@ static void mx_Py_DECREF(PyObject *v,
 	if (refcnt <= 1)
 	    mxDebugPrintf("[%s:%5i] Py_XDECREF( %-8s at 0x%lx [%s]); "
 			  "object deleted\n",
-			  filename,lineno,name,(long)v,v->ob_type->tp_name);
+			  filename,lineno,name,(long)v,Py_TYPE(v)->tp_name);
 	else
 	    mxDebugPrintf("[%s:%5i] Py_XDECREF( %-8s at 0x%lx [%s]); "
 			  "new refcount = %i\n",
-			  filename,lineno,name,(long)v,v->ob_type->tp_name,
+			  filename,lineno,name,(long)v,Py_TYPE(v)->tp_name,
 			  v->ob_refcnt);
     }
 }
@@ -175,7 +175,7 @@ static void mx_Py_PRINT_REFCOUNT(PyObject *v,
 		      filename,lineno,name);
     else {
 	mxDebugPrintf("[%s:%5i] Py_PRINT_REFCOUNT( %-8s at 0x%lx [%s]) = %i;\n",
-		      filename,lineno,name,(long)v,v->ob_type->tp_name,
+		      filename,lineno,name,(long)v,Py_TYPE(v)->tp_name,
 		      v->ob_refcnt);
     }
 }
@@ -439,8 +439,8 @@ static void mx_Py_PRINT_REFCOUNT(PyObject *v,
 #define PyFloat_Compatible(obj)					\
         (PyInstance_Check(obj) 					\
 	 ? PyObject_HasAttrString(obj, "__float__")		\
-	 : (obj->ob_type->tp_as_number != NULL &&		\
-            obj->ob_type->tp_as_number->nb_float != NULL))
+	 : (Py_TYPE(obj)->tp_as_number != NULL &&		\
+            Py_TYPE(obj)->tp_as_number->nb_float != NULL))
 
 /* --- Text macros -------------------------------------------------------- */
 
@@ -540,7 +540,7 @@ static void mx_Py_PRINT_REFCOUNT(PyObject *v,
 
 #define PyType_Init(x)						\
 {								\
-    x.ob_type = &PyType_Type; 					\
+    Py_TYPE(x) = &PyType_Type;					\
     Py_Assert(x.tp_basicsize >= (int)sizeof(PyObject),	        \
 	      PyExc_SystemError,				\
 	      "Internal error: tp_basicsize of "#x" too small");\
