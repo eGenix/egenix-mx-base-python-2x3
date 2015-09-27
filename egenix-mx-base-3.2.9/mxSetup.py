@@ -4118,8 +4118,11 @@ class mx_build_ext(CompilerSupportMixin,
             self.enable_build = [x.strip()
                                  for x in self.enable_build.split(',')]
         self.extra_output = []
+        log.info('finalize build_ext with inplace=%r' % self.inplace)
 
     def run(self):
+
+        log.info('start running build_ext with inplace=%r' % self.inplace)
 
         # Add unixlibs install-dirs to library_dirs, so that linking
         # against them becomes easy
@@ -4132,12 +4135,20 @@ class mx_build_ext(CompilerSupportMixin,
             #self.libraries[:0] = libs
             self.library_dirs[:0] = paths
 
+        # Save build_ext state (mx_autoconf will do a reinit of the
+        # build_ext command); XXX perhaps it shouldn't ?!
+        inplace = self.inplace
+
         # Assure that mx_autoconf has been run and store a reference
         # in .autoconf
         self.run_command('mx_autoconf')
         self.autoconf = self.get_finalized_command('mx_autoconf')
 
+        # Restore state
+        self.inplace = inplace
+        
         # Now, continue with the standard build process
+        log.info('running orig build_ext with inplace=%r' % self.inplace)
         build_ext.run(self)
 
     def build_extensions(self):
