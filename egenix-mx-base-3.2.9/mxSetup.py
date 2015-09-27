@@ -3174,8 +3174,10 @@ class mx_autoconf(CompilerSupportMixin,
         """
         body = """
         typedef struct _mxstruct {int a; int b;} mxstruct;
-        staticforward mxstruct mxarray[];
-        statichere mxstruct mxarray[] = {{0,2},{3,4},};
+        /* static forward */
+        static mxstruct mxarray[];
+        /* static here */
+        static mxstruct mxarray[] = {{0,2},{3,4},};
         int main(void) {return mxarray[0].a;}
         """
         self.prepare_compiler()
