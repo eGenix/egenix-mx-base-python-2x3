@@ -768,7 +768,6 @@ int mxDateTime_POSIX(void)
     time_t ticks = 536457599;
     struct tm *tm;
 
-    memset(&tm,0,sizeof(tm));
     tm = gmtime(&ticks);
     if (tm == NULL)
 	return 0;
@@ -844,7 +843,7 @@ int mxDateTime_CalcTicks(mxDateTimeObject *datetime,
 	      "year out of range for ticks conversion");
     
     /* Calculate floor()ed ticks value  */
-    memset(&tm,0,sizeof(tm));
+    memset(&tm, 0, sizeof(tm));
     tm.tm_hour = (int)datetime->hour;
     tm.tm_min = (int)datetime->minute;
     tm.tm_sec = (int)datetime->second;
@@ -1817,7 +1816,7 @@ struct tm *mxDateTime_AsTmStruct(mxDateTimeObject *datetime,
 	      mxDateTime_RangeError,
 	      "year out of range for tm struct conversion");
 
-    memset(tm,0,sizeof(tm));
+    memset(tm, 0, sizeof(tm));
     tm->tm_hour = (int)datetime->hour;
     tm->tm_min = (int)datetime->minute;
 #if ROUND_SECONDS_IN_TM_STRUCT
@@ -1859,7 +1858,7 @@ int init_mktime_works(void)
     time_t a,b;
     
     /* Does mktime() in general and specifically DST = -1 work ? */
-    memset(&tm,0,sizeof(tm));
+    memset(&tm, 0, sizeof(tm));
     tm.tm_mday = 1;
     tm.tm_mon = 5;
     tm.tm_year = 98;
@@ -1868,7 +1867,7 @@ int init_mktime_works(void)
     Py_Assert(a != (time_t)-1,
 	      PyExc_SystemError,
 	      "mktime() returned an error (June)");
-    memset(&tm,0,sizeof(tm));
+    memset(&tm, 0, sizeof(tm));
     tm.tm_mday = 1;
     tm.tm_mon = 0;
     tm.tm_year = 98;
@@ -1883,7 +1882,7 @@ int init_mktime_works(void)
        looking at the given setting. */
 
     /* a = (Summer, DST = 0) */
-    memset(&tm,0,sizeof(tm));
+    memset(&tm, 0, sizeof(tm));
     tm.tm_mday = 1;
     tm.tm_mon = 5;
     tm.tm_year = 98;
@@ -1895,7 +1894,7 @@ int init_mktime_works(void)
     }
 
     /* b = (Summer, DST = 1) */
-    memset(&tm,0,sizeof(tm));
+    memset(&tm, 0, sizeof(tm));
     tm.tm_mday = 1;
     tm.tm_mon = 5;
     tm.tm_year = 98;
@@ -1907,7 +1906,7 @@ int init_mktime_works(void)
     }
     
     /* a = (Winter, DST = 0) */
-    memset(&tm,0,sizeof(tm));
+    memset(&tm, 0, sizeof(tm));
     tm.tm_mday = 1;
     tm.tm_mon = 0;
     tm.tm_year = 98;
@@ -1919,7 +1918,7 @@ int init_mktime_works(void)
     }
 
     /* b = (Winter, DST = 1) */
-    memset(&tm,0,sizeof(tm));
+    memset(&tm, 0, sizeof(tm));
     tm.tm_mday = 1;
     tm.tm_mon = 0;
     tm.tm_year = 98;
@@ -1966,7 +1965,7 @@ double mxDateTime_AsTicksWithOffset(mxDateTimeObject *datetime,
 	      mxDateTime_RangeError,
 	      "year out of range for ticks conversion");
     
-    memset(&tm,0,sizeof(tm));
+    memset(&tm, 0, sizeof(tm));
     tm.tm_hour = (int)datetime->hour;
     tm.tm_min = (int)datetime->minute;
     tm.tm_sec = (int)datetime->second;
@@ -2042,7 +2041,7 @@ double mxDateTime_AsGMTicksWithOffset(mxDateTimeObject *datetime,
 
 	/* Use timegm() if not POSIX conform: the time package knows about
 	   leap seconds so we use that information too. */
-	memset(&tm,0,sizeof(tm));
+	memset(&tm, 0, sizeof(tm));
 	tm.tm_hour = (int)datetime->hour;
 	tm.tm_min = (int)datetime->minute;
 	tm.tm_sec = (int)datetime->second;
@@ -2291,7 +2290,7 @@ int mxDateTime_DST(mxDateTimeObject *datetime)
     if ((long)((int)datetime->year) != datetime->year)
 	return -1;
 
-    memset(&tm,0,sizeof(tm));
+    memset(&tm, 0, sizeof(tm));
     tm.tm_hour = (int)datetime->hour;
     tm.tm_min = (int)datetime->minute;
     tm.tm_sec = (int)datetime->second;
@@ -2325,7 +2324,7 @@ PyObject *mxDateTime_TimezoneString(mxDateTimeObject *datetime)
 #ifndef HAVE_STRFTIME
     return mxPyText_FromString("???");
 #else
-    memset(&tm,0,sizeof(tm));
+    memset(&tm, 0, sizeof(tm));
     tm.tm_hour = (int)datetime->hour;
     tm.tm_min = (int)datetime->minute;
     tm.tm_sec = (int)datetime->second;
@@ -2337,7 +2336,7 @@ PyObject *mxDateTime_TimezoneString(mxDateTimeObject *datetime)
     ticks = mktime(&tm);
     if (ticks == (time_t)-1 && tm.tm_wday == -1)
 	return mxPyText_FromString("???");
-    strftime(tz,sizeof(tm),"%Z",&tm);
+    strftime(tz, sizeof(tm), "%Z", &tm);
     return mxPyText_FromString(tz);
 #endif
 }
@@ -2572,7 +2571,7 @@ Py_C_Function( mxDateTime_strftime,
 	      "year out of range for strftime() formatting");
 
     /* Init tm struct */
-    memset(&tm,0,sizeof(tm));
+    memset(&tm, 0, sizeof(tm));
     tm.tm_mday = (int)datetime->day;
     tm.tm_mon = (int)datetime->month - 1;
     tm.tm_year = (int)datetime->year - 1900;
@@ -3083,7 +3082,7 @@ PyObject *mxDateTime_Str(PyObject *obj)
     mxDateTimeObject *self = (mxDateTimeObject *)obj;
     char s[50];
 
-    mxDateTime_AsString(self,s,sizeof(s));
+    mxDateTime_AsString(self, s, sizeof(s));
     return mxPyText_FromString(s);
 }
 
@@ -4401,7 +4400,7 @@ Py_C_Function( mxDateTimeDelta_strftime,
 	      "days out of range for strftime() formatting");
 
     /* Init to the epoch */
-    memset(&tm,0,sizeof(tm));
+    memset(&tm, 0, sizeof(tm));
     tm.tm_year = 0;
 
     /* Store the values in their appropriate places */
@@ -4659,7 +4658,7 @@ PyObject *mxDateTimeDelta_Str(PyObject *obj)
     mxDateTimeDeltaObject *self = (mxDateTimeDeltaObject *)obj;
     char s[50];
 
-    mxDateTimeDelta_AsString(self,s,sizeof(s));
+    mxDateTimeDelta_AsString(self, s, sizeof(s));
     return mxPyText_FromString(s);
 }
 
@@ -5574,7 +5573,7 @@ Py_C_Function( mxDateTime_strptime,
     }
     else {
 	/* Init to 1.1.0001 0:00:00.00 */
-	memset(&tm,0,sizeof(tm));
+	memset(&tm, 0, sizeof(tm));
 	tm.tm_mday = 1;
 	tm.tm_year = -1899;
     }
@@ -6015,7 +6014,7 @@ MX_EXPORT(void)
 	    (long)module);
     DPRINTF("Notes: "
 	    "sizeof(time_t) = %i, sizeof(int) = %i, sizeof(long) = %i\n",
-	    sizeof(time_t),sizeof(int), sizeof(long));
+	    sizeof(time_t), sizeof(int), sizeof(long));
 
 #ifdef HAVE_PYDATETIME
     /* Init the Python datetime module's API if already loaded */
