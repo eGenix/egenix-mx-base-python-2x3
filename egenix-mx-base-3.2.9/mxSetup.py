@@ -208,7 +208,7 @@ distutils.util.change_root = change_root
 if module_loaded('setuptools'):
     import setuptools
 elif ('--use-setuptools' in sys.argv or
-      os.getenv('EGENIX_MXSETUP_USE_SETUPTOOLS')):
+      int(os.environ.get('EGENIX_MXSETUP_USE_SETUPTOOLS', 0))):
     try:
         sys.argv.remove('--use-setuptools')
     except ValueError:
@@ -335,7 +335,12 @@ from distutils.dir_util import remove_tree, mkpath, create_tree
 from distutils.spawn import spawn, find_executable
 from distutils.command.config import config
 from distutils.command.build import build
-from distutils.command.build_ext import build_ext
+# setuptools uses a different build_ext, so let's use that if needed
+# in order to support the "develop" command which relies on it
+if setuptools is None:
+    from distutils.command.build_ext import build_ext
+else:
+    from setuptools.command.build_ext import build_ext
 from distutils.command.build_clib import build_clib
 from distutils.command.build_py import build_py
 from distutils.command.bdist import bdist
@@ -4113,8 +4118,11 @@ class mx_build_ext(CompilerSupportMixin,
             self.enable_build = [x.strip()
                                  for x in self.enable_build.split(',')]
         self.extra_output = []
+        log.info('finalize build_ext with inplace=%r' % self.inplace)
 
     def run(self):
+
+        log.info('start running build_ext with inplace=%r' % self.inplace)
 
         # Add unixlibs install-dirs to library_dirs, so that linking
         # against them becomes easy
@@ -4127,12 +4135,20 @@ class mx_build_ext(CompilerSupportMixin,
             #self.libraries[:0] = libs
             self.library_dirs[:0] = paths
 
+        # Save build_ext state (mx_autoconf will do a reinit of the
+        # build_ext command); XXX perhaps it shouldn't ?!
+        inplace = self.inplace
+
         # Assure that mx_autoconf has been run and store a reference
         # in .autoconf
         self.run_command('mx_autoconf')
         self.autoconf = self.get_finalized_command('mx_autoconf')
 
+        # Restore state
+        self.inplace = inplace
+        
         # Now, continue with the standard build process
+        log.info('running orig build_ext with inplace=%r' % self.inplace)
         build_ext.run(self)
 
     def build_extensions(self):
