@@ -208,7 +208,7 @@ distutils.util.change_root = change_root
 if module_loaded('setuptools'):
     import setuptools
 elif ('--use-setuptools' in sys.argv or
-      os.getenv('EGENIX_MXSETUP_USE_SETUPTOOLS')):
+      int(os.environ.get('EGENIX_MXSETUP_USE_SETUPTOOLS', 0))):
     try:
         sys.argv.remove('--use-setuptools')
     except ValueError:
@@ -335,7 +335,12 @@ from distutils.dir_util import remove_tree, mkpath, create_tree
 from distutils.spawn import spawn, find_executable
 from distutils.command.config import config
 from distutils.command.build import build
-from distutils.command.build_ext import build_ext
+# setuptools uses a different build_ext, so let's use that if needed
+# in order to support the "develop" command which relies on it
+if setuptools is None:
+    from distutils.command.build_ext import build_ext
+else:
+    from setuptools.command.build_ext import build_ext
 from distutils.command.build_clib import build_clib
 from distutils.command.build_py import build_py
 from distutils.command.bdist import bdist
